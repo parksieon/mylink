@@ -1,25 +1,15 @@
 import type { Metadata } from "next";
-import { Noto_Sans_KR, Space_Mono, Geist } from "next/font/google";
+import { Geist } from "next/font/google";
+import Link from "next/link";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { LinkProvider } from "@/context/link-context";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
-
-const notoSansKr = Noto_Sans_KR({
-  variable: "--font-noto-sans-kr",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "700"],
-});
-
-const spaceMono = Space_Mono({
-  variable: "--font-space-mono",
-  subsets: ["latin"],
-  weight: ["400", "700"],
-});
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "홍길동 - 포트폴리오 웹사이트",
-  description: "개인 작업물과 이력을 시각적으로 정리한 포트폴리오 웹사이트입니다.",
+  title: "MyLink",
+  description: "나만의 링크를 한곳에 모아 관리하세요.",
 };
 
 export default function RootLayout({
@@ -29,10 +19,26 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={cn("font-sans", geist.variable)}>
-      <body
-        className={`${notoSansKr.variable} ${spaceMono.variable} antialiased`}
-      >
-        {children}
+      <body className="antialiased">
+        <nav className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl backdrop-saturate-150">
+          <div className="mx-auto flex h-12 max-w-3xl items-center justify-between px-6">
+            <Link
+              href="/"
+              className="text-sm font-semibold tracking-tight text-foreground transition-opacity hover:opacity-60"
+            >
+              MyLink
+            </Link>
+            <Link
+              href="/mypage"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              관리
+            </Link>
+          </div>
+        </nav>
+        <LinkProvider>
+          <main>{children}</main>
+        </LinkProvider>
       </body>
     </html>
   );
