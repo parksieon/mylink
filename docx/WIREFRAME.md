@@ -73,3 +73,37 @@
 - **`:::` (좌측 핸들 기호)**: 마우스로 꾹 눌러 위아래로 당기면 각 카드의 노출 순서를 바꿀 수 있는 직관적인 **Drag & Drop 핸들(그립)** 영역입니다.
 - **`[ON]/[OFF]` 토글 버튼**: 링크 카드를 아예 삭제하지 않고도 퍼블릭 모바일 뷰(방문자 화면)에서 임시로 감추거나 다시 노출시킬 수 있는 **활성화 제어 스위치**입니다.
 - **우측 실시간 미리보기 패널**: 사용자가 좌측에서 링크의 주소, 제목을 수정하거나 토글 상태를 비활성화(`[OFF]`)하면, 페이지의 새로고침 없이 즉각적으로 우측 가상의 모바일 프레임에 동일하게 내용이 치환되어 그려집니다.
+
+## 3. UI 컴포넌트 계층 구조도 (Mermaid)
+이 다이어그램은 화면을 구성하는 컴포넌트들의 트리 구조 및 데이터 동기화 흐름을 시각화합니다.
+
+```mermaid
+graph TD
+    Root[App / Page 최상위 레이아웃] --> AdminView(관리자 대시보드 화면)
+    Root --> PublicView(퍼블릭 모바일 공유 화면)
+
+    subgraph "관리자 편집 영역 (Admin Dashboard)"
+        AdminView --> EditPanel[좌측 입력 폼 패널]
+        AdminView --> LivePreview[우측 실시간 렌더링 프레임]
+        
+        EditPanel --> ProfileSection[프로필 설정 영역]
+        EditPanel --> LinkManager[Draggable 링크 관리 리스트]
+        
+        LinkManager --> LinkItem[개별 링크 아이템 카드]
+        LinkItem --> TitleField(제목/URL 입력 필드)
+        LinkItem --> StateToggle(활성화 상태 변환 토글)
+    end
+    
+    subgraph "퍼블릭 표시 영역 (Public View)"
+        PublicView --> ProfileHeader[상단 아바타 및 소개글 렌더링 영역]
+        PublicView --> ButtonList[중앙 원버튼 멀티링크 렌더링 영역]
+        PublicView --> SocialFooter[하단 SNS 아이콘 렌더링 영역]
+        
+        ButtonList --> PublicLinkItem[개별 리다이렉트 외부 링크 버튼]
+    end
+    
+    %% 데이터 동기화 흐름
+    ProfileSection -. "사용자 프로필 정보 (DB / State)" .-> ProfileHeader
+    LinkItem -. "링크 데이터 (URL, Title, 노출 상태)" .-> ButtonList
+    LivePreview ==>|공통 UI 컴포넌트 재사용| PublicView
+```
