@@ -6,12 +6,20 @@
 }
 
 @theme inline {
+  --color-bg: #F5F2EB;
+  --color-ink: #1A1A1A;
+  --color-accent: #D4530A;
+  --color-muted: #888888;
+  --color-border: #D0CBB8;
+  --color-card: #FFFDF8;
+  
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-noto-sans-kr), sans-serif;
+  --font-mono: var(--font-space-mono), monospace;
 }
 
+/* 다크모드는 기획안에 따라 일단 추후 반영 검토하므로 제외하거나 기본으로 유지 */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -20,7 +28,7 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
 }

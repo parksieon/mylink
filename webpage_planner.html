@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>웹페이지 플래너</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg: #F5F2EB;
+    --ink: #1A1A1A;
+    --accent: #D4530A;
+    --muted: #888;
+    --border: #D0CBB8;
+    --card: #FFFDF8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Noto Sans KR', sans-serif;
+    padding: 48px 24px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  .doc-header {
+    border-top: 3px solid var(--ink);
+    border-bottom: 1px solid var(--border);
+    padding: 24px 0 20px;
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .doc-header h1 {
+    font-family: 'Space Mono', monospace;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+  }
+  .doc-header .meta {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: right;
+    line-height: 1.8;
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 36px;
+  }
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  /* Info Grid */
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .info-row {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 14px 16px;
+  }
+  .info-row .label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .info-row .value {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  /* Goal Box */
+  .goal-box {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 20px 24px;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+
+  /* Page List */
+  .page-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .page-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 36px 1fr 80px 80px;
+    align-items: center;
+    gap: 0;
+    overflow: hidden;
+  }
+  .page-item .num {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    padding: 14px 0;
+    border-right: 1px solid var(--border);
+  }
+  .page-item .name {
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .page-item .tag {
+    font-size: 11px;
+    color: var(--muted);
+    padding: 14px 12px;
+    border-left: 1px solid var(--border);
+    text-align: center;
+  }
+  .page-item.header-row {
+    background: transparent;
+    border-color: transparent;
+  }
+  .page-item.header-row .num,
+  .page-item.header-row .name,
+  .page-item.header-row .tag {
+    font-size: 10px;
+    font-family: 'Space Mono', monospace;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding-top: 0;
+    padding-bottom: 8px;
+    border-color: transparent;
+  }
+
+  /* Tech Stack */
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .stack-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 12px 16px;
+  }
+  .stack-item .stack-label {
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+  }
+  .stack-item .stack-value {
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* Schedule */
+  .schedule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .schedule-item {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    align-items: center;
+    font-size: 13px;
+  }
+  .schedule-item:last-child { border-bottom: none; }
+  .schedule-item .week {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* Notes */
+  .notes-box {
+    border: 1px solid var(--border);
+    padding: 20px;
+    background: var(--card);
+    min-height: 80px;
+    font-size: 13px;
+    line-height: 1.9;
+    color: var(--ink);
+  }
+
+  /* Footer */
+  .doc-footer {
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+    margin-top: 48px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+  }
+
+  @media print {
+    body { padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <h1>WEB PAGE PLANNER</h1>
+  <div class="meta">
+    버전 1.0<br>
+    작성일: 2026.03.21
+  </div>
+</div>
+
+<!-- 기본 정보 -->
+<div class="section">
+  <div class="section-label">01 — 기본 정보</div>
+  <div class="info-grid">
+    <div class="info-row">
+      <div class="label">프로젝트명</div>
+      <div class="value">포트폴리오 웹사이트</div>
+    </div>
+    <div class="info-row">
+      <div class="label">담당자</div>
+      <div class="value">홍길동</div>
+    </div>
+    <div class="info-row">
+      <div class="label">대상 사용자</div>
+      <div class="value">채용 담당자 · 클라이언트</div>
+    </div>
+    <div class="info-row">
+      <div class="label">납기일</div>
+      <div class="value">2026.04.30</div>
+    </div>
+  </div>
+</div>
+
+<!-- 목표 -->
+<div class="section">
+  <div class="section-label">02 — 프로젝트 목표</div>
+  <div class="goal-box">
+    개인 작업물을 시각적으로 정리하고 방문자가 빠르게 역량을 파악할 수 있도록 한다.
+    반응형 레이아웃으로 모바일에서도 동일한 경험을 제공하며,
+    페이지 로딩 속도를 3초 이내로 유지한다.
+  </div>
+</div>
+
+<!-- 페이지 구성 -->
+<div class="section">
+  <div class="section-label">03 — 페이지 구성</div>
+  <div class="page-list">
+    <div class="page-item header-row">
+      <div class="num">#</div>
+      <div class="name">페이지명</div>
+      <div class="tag">유형</div>
+      <div class="tag">우선순위</div>
+    </div>
+    <div class="page-item">
+      <div class="num">01</div>
+      <div class="name">홈 (Hero + 소개)</div>
+      <div class="tag">필수</div>
+      <div class="tag" style="color:var(--accent); font-weight:700;">HIGH</div>
+    </div>
+    <div class="page-item">
+      <div class="num">02</div>
+      <div class="name">프로젝트 목록</div>
+      <div class="tag">필수</div>
+      <div class="tag" style="color:var(--accent); font-weight:700;">HIGH</div>
+    </div>
+    <div class="page-item">
+      <div class="num">03</div>
+      <div class="name">프로젝트 상세</div>
+      <div class="tag">필수</div>
+      <div class="tag" style="color:var(--accent); font-weight:700;">HIGH</div>
+    </div>
+    <div class="page-item">
+      <div class="num">04</div>
+      <div class="name">기술 스택 · 이력</div>
+      <div class="tag">선택</div>
+      <div class="tag">MID</div>
+    </div>
+    <div class="page-item">
+      <div class="num">05</div>
+      <div class="name">연락처</div>
+      <div class="tag">필수</div>
+      <div class="tag" style="color:var(--accent); font-weight:700;">HIGH</div>
+    </div>
+  </div>
+</div>
+
+<!-- 기술 스택 -->
+<div class="section">
+  <div class="section-label">04 — 기술 스택</div>
+  <div class="stack-grid">
+    <div class="stack-item">
+      <div class="stack-label">Frontend</div>
+      <div class="stack-value">React</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-label">Styling</div>
+      <div class="stack-value">Tailwind CSS</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-label">Hosting</div>
+      <div class="stack-value">Vercel</div>
+    </div>
+  </div>
+</div>
+
+<!-- 일정 -->
+<div class="section">
+  <div class="section-label">05 — 개발 일정</div>
+  <div class="schedule-list">
+    <div class="schedule-item">
+      <div class="week">WEEK 1</div>
+      <div>기획 확정 · 와이어프레임 작성</div>
+    </div>
+    <div class="schedule-item">
+      <div class="week">WEEK 2</div>
+      <div>디자인 시안 · 컴포넌트 설계</div>
+    </div>
+    <div class="schedule-item">
+      <div class="week">WEEK 3</div>
+      <div>페이지 개발 · 콘텐츠 입력</div>
+    </div>
+    <div class="schedule-item">
+      <div class="week">WEEK 4</div>
+      <div>QA · 반응형 검수 · 배포</div>
+    </div>
+  </div>
+</div>
+
+<!-- 메모 -->
+<div class="section">
+  <div class="section-label">06 — 메모 및 참고사항</div>
+  <div class="notes-box">
+    - 레퍼런스 사이트: awwwards.com 수상작 3개 벤치마킹<br>
+    - SEO 메타태그 기본 설정 포함<br>
+    - 다크모드 지원은 추후 버전에서 검토
+  </div>
+</div>
+
+<div class="doc-footer">
+  <span>WEBPAGE PLANNER v1.0</span>
+  <span>CONFIDENTIAL · INTERNAL USE ONLY</span>
+</div>
+
+</body>
+</html>
