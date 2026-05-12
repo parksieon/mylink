@@ -8,8 +8,27 @@ import { LinkProvider } from "@/context/link-context";
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "MyLink",
-  description: "나만의 링크를 한곳에 모아 관리하세요.",
+  metadataBase: new URL("https://mylink.vercel.app"),
+  title: {
+    default: "MyLink — 나만의 링크를 한곳에",
+    template: "%s · MyLink",
+  },
+  description:
+    "인스타그램, 블로그, 포트폴리오 등 흩어진 링크를 하나의 프로필로 모아 공유하세요.",
+  openGraph: {
+    type: "website",
+    locale: "ko_KR",
+    siteName: "MyLink",
+    title: "MyLink — 나만의 링크를 한곳에",
+    description:
+      "인스타그램, 블로그, 포트폴리오 등 흩어진 링크를 하나의 프로필로 모아 공유하세요.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MyLink — 나만의 링크를 한곳에",
+    description:
+      "인스타그램, 블로그, 포트폴리오 등 흩어진 링크를 하나의 프로필로 모아 공유하세요.",
+  },
 };
 
 export default function RootLayout({

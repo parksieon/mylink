@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useLinkContext } from "@/context/link-context";
-import { Trash2 } from "lucide-react";
+import { Pencil, Trash2, Check, X } from "lucide-react";
 
 interface FieldErrors {
   title?: string;
@@ -22,31 +22,30 @@ function isValidUrl(value: string): boolean {
 }
 
 export default function MyPage() {
-  const { links, addLink, deleteLink } = useLinkContext();
+  const { links, addLink, updateLink, deleteLink } = useLinkContext();
+
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
 
-  const validate = (): FieldErrors => {
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editUrl, setEditUrl] = useState("");
+  const [editErrors, setEditErrors] = useState<FieldErrors>({});
+
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+
+  const validate = (t: string, u: string): FieldErrors => {
     const newErrors: FieldErrors = {};
-
-    if (!title.trim()) {
-      newErrors.title = "제목을 입력해주세요";
-    }
-
-    if (!url.trim()) {
-      newErrors.url = "주소를 입력해주세요";
-    } else if (!isValidUrl(url.trim())) {
-      newErrors.url = "올바른 주소를 입력해주세요";
-    }
-
+    if (!t.trim()) newErrors.title = "제목을 입력해주세요";
+    if (!u.trim()) newErrors.url = "주소를 입력해주세요";
+    else if (!isValidUrl(u.trim())) newErrors.url = "올바른 주소를 입력해주세요";
     return newErrors;
   };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-
-    const fieldErrors = validate();
+    const fieldErrors = validate(title, url);
     setErrors(fieldErrors);
     if (Object.keys(fieldErrors).length > 0) return;
 
@@ -55,6 +54,38 @@ export default function MyPage() {
     setUrl("");
     setErrors({});
   };
+
+  const startEdit = (id: string, currentTitle: string, currentUrl: string) => {
+    setEditingId(id);
+    setEditTitle(currentTitle);
+    setEditUrl(currentUrl);
+    setEditErrors({});
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditTitle("");
+    setEditUrl("");
+    setEditErrors({});
+  };
+
+  const saveEdit = (id: string) => {
+    const fieldErrors = validate(editTitle, editUrl);
+    setEditErrors(fieldErrors);
+    if (Object.keys(fieldErrors).length > 0) return;
+
+    updateLink(id, editTitle.trim(), editUrl.trim());
+    cancelEdit();
+  };
+
+  const confirmDelete = () => {
+    if (deleteTargetId) {
+      deleteLink(deleteTargetId);
+      setDeleteTargetId(null);
+    }
+  };
+
+  const deleteTarget = links.find((l) => l.id === deleteTargetId);
 
   return (
     <div className="mx-auto max-w-2xl px-6 pb-20 pt-16">
@@ -129,6 +160,68 @@ export default function MyPage() {
         <div className="divide-y divide-border/60 overflow-hidden rounded-2xl ring-1 ring-border/60">
           {links.map((link) => {
             const IconComponent = link.icon;
+            const isEditing = editingId === link.id;
+
+            if (isEditing) {
+              return (
+                <div key={link.id} className="bg-card p-4 sm:p-5">
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
+                      <Input
+                        placeholder="제목"
+                        value={editTitle}
+                        className={editErrors.title ? "border-destructive" : ""}
+                        onChange={(e) => {
+                          setEditTitle(e.target.value);
+                          if (editErrors.title)
+                            setEditErrors((prev) => ({ ...prev, title: undefined }));
+                        }}
+                      />
+                      {editErrors.title && (
+                        <p className="text-[13px] text-destructive">{editErrors.title}</p>
+                      )}
+                    </div>
+                    <div className="space-y-1.5">
+                      <Input
+                        placeholder="https://..."
+                        value={editUrl}
+                        className={editErrors.url ? "border-destructive" : ""}
+                        onChange={(e) => {
+                          setEditUrl(e.target.value);
+                          if (editErrors.url)
+                            setEditErrors((prev) => ({ ...prev, url: undefined }));
+                        }}
+                      />
+                      {editErrors.url && (
+                        <p className="text-[13px] text-destructive">{editErrors.url}</p>
+                      )}
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={cancelEdit}
+                        className="cursor-pointer"
+                      >
+                        <X size={14} strokeWidth={2} />
+                        취소
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => saveEdit(link.id)}
+                        className="cursor-pointer"
+                      >
+                        <Check size={14} strokeWidth={2} />
+                        저장
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
             return (
               <div
                 key={link.id}
@@ -146,7 +239,15 @@ export default function MyPage() {
                   </p>
                 </div>
                 <button
-                  onClick={() => deleteLink(link.id)}
+                  onClick={() => startEdit(link.id, link.title, link.url)}
+                  aria-label="수정"
+                  className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-foreground/[0.06] hover:text-foreground"
+                >
+                  <Pencil size={14} strokeWidth={1.8} />
+                </button>
+                <button
+                  onClick={() => setDeleteTargetId(link.id)}
+                  aria-label="삭제"
                   className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                 >
                   <Trash2 size={15} strokeWidth={1.8} />
@@ -156,6 +257,45 @@ export default function MyPage() {
           })}
         </div>
       </section>
+
+      {/* Delete Confirmation Modal */}
+      {deleteTarget && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/30 px-6 backdrop-blur-sm"
+          onClick={() => setDeleteTargetId(null)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl bg-card p-6 shadow-xl ring-1 ring-border/60"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-semibold tracking-tight text-foreground">
+              링크를 삭제할까요?
+            </h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">{deleteTarget.title}</span>{" "}
+              링크가 영구적으로 삭제됩니다.
+            </p>
+            <div className="mt-6 flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setDeleteTargetId(null)}
+                className="cursor-pointer"
+              >
+                취소
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={confirmDelete}
+                className="cursor-pointer"
+              >
+                삭제
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

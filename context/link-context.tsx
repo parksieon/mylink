@@ -14,6 +14,7 @@ export interface UserLink {
 interface LinkContextType {
   links: UserLink[];
   addLink: (title: string, url: string) => void;
+  updateLink: (id: string, title: string, url: string) => void;
   deleteLink: (id: string) => void;
 }
 
@@ -39,12 +40,20 @@ export function LinkProvider({ children }: { children: ReactNode }) {
     setLinks((prev) => [...prev, newLink]);
   };
 
+  const updateLink = (id: string, title: string, url: string) => {
+    setLinks((prev) =>
+      prev.map((link) =>
+        link.id === id ? { ...link, title, url } : link
+      )
+    );
+  };
+
   const deleteLink = (id: string) => {
     setLinks((prev) => prev.filter((link) => link.id !== id));
   };
 
   return (
-    <LinkContext.Provider value={{ links, addLink, deleteLink }}>
+    <LinkContext.Provider value={{ links, addLink, updateLink, deleteLink }}>
       {children}
     </LinkContext.Provider>
   );

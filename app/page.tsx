@@ -7,17 +7,22 @@ export default function Home() {
   const { links } = useLinkContext();
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-lg flex-col items-center px-6 pb-20 pt-24">
-      {/* Profile */}
-      <div className="mb-2 flex h-20 w-20 items-center justify-center rounded-full bg-foreground/5">
-        <span className="text-3xl font-bold text-foreground/30">H</span>
-      </div>
-      <h1 className="mt-4 text-2xl font-bold tracking-tight text-foreground">
-        홍길동
-      </h1>
-      <p className="mt-1.5 text-sm text-muted-foreground">
-        개발자 · 크리에이터
-      </p>
+    <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-lg flex-col px-6 pb-12 pt-20">
+      {/* Profile Hero */}
+      <header className="flex flex-col items-center text-center">
+        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-foreground/[0.08] to-foreground/[0.02] ring-1 ring-border/60">
+          <span className="text-3xl font-bold text-foreground/40">H</span>
+        </div>
+        <h1 className="mt-5 text-2xl font-bold tracking-tight text-foreground">
+          홍길동
+        </h1>
+        <p className="mt-1.5 text-sm text-muted-foreground">
+          개발자 · 크리에이터
+        </p>
+        <p className="mt-3 max-w-xs text-[13px] leading-relaxed text-muted-foreground/80">
+          관심 있는 모든 채널을 한 곳에서 만나보세요.
+        </p>
+      </header>
 
       {/* Links */}
       <div className="mt-12 w-full space-y-3">
@@ -45,6 +50,14 @@ export default function Home() {
           );
         })}
       </div>
+
+      {/* Footer */}
+      <footer className="mt-auto pt-16 text-center">
+        <p className="text-[11px] tracking-wide text-muted-foreground/60">
+          Powered by{" "}
+          <span className="font-semibold text-foreground/70">MyLink</span>
+        </p>
+      </footer>
     </div>
   );
 }
