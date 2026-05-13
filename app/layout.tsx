@@ -10,24 +10,24 @@ const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 export const metadata: Metadata = {
   metadataBase: new URL("https://mylink.vercel.app"),
   title: {
-    default: "MyLink — 나만의 링크를 한곳에",
-    template: "%s · MyLink",
+    default: "박시언의 MyLink",
+    template: "%s · 박시언의 MyLink",
   },
   description:
-    "인스타그램, 블로그, 포트폴리오 등 흩어진 링크를 하나의 프로필로 모아 공유하세요.",
+    "코드로 세상을 더 행복하게 만들고 싶은 학생, 박시언의 링크 모음.",
   openGraph: {
     type: "website",
     locale: "ko_KR",
-    siteName: "MyLink",
-    title: "MyLink — 나만의 링크를 한곳에",
+    siteName: "박시언의 MyLink",
+    title: "박시언의 MyLink",
     description:
-      "인스타그램, 블로그, 포트폴리오 등 흩어진 링크를 하나의 프로필로 모아 공유하세요.",
+      "코드로 세상을 더 행복하게 만들고 싶은 학생, 박시언의 링크 모음.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "MyLink — 나만의 링크를 한곳에",
+    title: "박시언의 MyLink",
     description:
-      "인스타그램, 블로그, 포트폴리오 등 흩어진 링크를 하나의 프로필로 모아 공유하세요.",
+      "코드로 세상을 더 행복하게 만들고 싶은 학생, 박시언의 링크 모음.",
   },
 };
 

@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# AI tooling
+.claude/
+
+# 수업자료 (강의자료 — 저작권)
+수업자료/

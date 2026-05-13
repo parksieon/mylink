@@ -1,4 +1,4 @@
-import { Instagram, Youtube, BookOpen, Github, Briefcase, LucideIcon } from 'lucide-react';
+import { Github, Mail, Rocket, BookOpen, LucideIcon } from "lucide-react";
 
 export interface LinkItem {
   id: string;
@@ -9,33 +9,27 @@ export interface LinkItem {
 
 export const dummyLinks: LinkItem[] = [
   {
-    id: '1',
-    title: 'Instagram',
-    url: 'https://instagram.com',
-    icon: Instagram,
-  },
-  {
-    id: '2',
-    title: 'YouTube',
-    url: 'https://youtube.com',
-    icon: Youtube,
-  },
-  {
-    id: '3',
-    title: 'Blog',
-    url: 'https://blog.example.com',
-    icon: BookOpen,
-  },
-  {
-    id: '4',
-    title: 'GitHub',
-    url: 'https://github.com',
+    id: "github",
+    title: "GitHub",
+    url: "https://github.com/parksieon/mylink",
     icon: Github,
   },
   {
-    id: '5',
-    title: 'Portfolio',
-    url: 'https://portfolio.example.com',
-    icon: Briefcase,
+    id: "email",
+    title: "Email",
+    url: "mailto:parksieon03@gmail.com",
+    icon: Mail,
+  },
+  {
+    id: "capstone",
+    title: "캡스톤 프로젝트 (진행중)",
+    url: "https://vatican-mind-applicant-ingredients.trycloudflare.com/",
+    icon: Rocket,
+  },
+  {
+    id: "learning-notes",
+    title: "학습 정리",
+    url: "/learning-notes",
+    icon: BookOpen,
   },
 ];

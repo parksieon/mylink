@@ -2,6 +2,7 @@
 
 import { useLinkContext } from "@/context/link-context";
 import { ChevronRight } from "lucide-react";
+import { Cello } from "@/components/icons/cello";
 
 export default function Home() {
   const { links } = useLinkContext();
@@ -11,16 +12,16 @@ export default function Home() {
       {/* Profile Hero */}
       <header className="flex flex-col items-center text-center">
         <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-foreground/[0.08] to-foreground/[0.02] ring-1 ring-border/60">
-          <span className="text-3xl font-bold text-foreground/40">H</span>
+          <Cello size={44} strokeWidth={1.5} className="text-foreground/70" />
         </div>
         <h1 className="mt-5 text-2xl font-bold tracking-tight text-foreground">
-          홍길동
+          박시언
         </h1>
         <p className="mt-1.5 text-sm text-muted-foreground">
-          개발자 · 크리에이터
+          광운대 정보융합학부 22학번
         </p>
         <p className="mt-3 max-w-xs text-[13px] leading-relaxed text-muted-foreground/80">
-          관심 있는 모든 채널을 한 곳에서 만나보세요.
+          코드로 세상을 더 행복하게 만들고 싶은 학생
         </p>
       </header>
 
