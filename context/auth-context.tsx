@@ -11,7 +11,6 @@ import {
   User,
   onAuthStateChanged,
   signInWithPopup,
-  signInWithRedirect,
   signOut as firebaseSignOut,
 } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
@@ -42,13 +41,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await signInWithPopup(auth, googleProvider);
     } catch (err) {
       const code = (err as { code?: string })?.code;
-      // 팝업 차단/닫힘 시 리다이렉트 방식으로 폴백
+      if (code === "auth/popup-blocked") {
+        alert(
+          "팝업이 차단되어 로그인할 수 없습니다.\n\n주소창 우측의 팝업 차단 아이콘을 클릭해 이 사이트의 팝업을 허용한 뒤 다시 시도해주세요."
+        );
+        return;
+      }
       if (
-        code === "auth/popup-blocked" ||
         code === "auth/popup-closed-by-user" ||
         code === "auth/cancelled-popup-request"
       ) {
-        await signInWithRedirect(auth, googleProvider);
+        // 사용자가 직접 닫음 — 조용히 무시
         return;
       }
       console.error("Google sign-in failed:", err);
