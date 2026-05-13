@@ -11,6 +11,7 @@ import {
   User,
   onAuthStateChanged,
   signInWithPopup,
+  signInWithRedirect,
   signOut as firebaseSignOut,
 } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
@@ -40,6 +41,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (err) {
+      const code = (err as { code?: string })?.code;
+      // 팝업 차단/닫힘 시 리다이렉트 방식으로 폴백
+      if (
+        code === "auth/popup-blocked" ||
+        code === "auth/popup-closed-by-user" ||
+        code === "auth/cancelled-popup-request"
+      ) {
+        await signInWithRedirect(auth, googleProvider);
+        return;
+      }
       console.error("Google sign-in failed:", err);
     }
   };
