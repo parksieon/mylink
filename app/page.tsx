@@ -1,13 +1,33 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useLinkContext } from "@/context/link-context";
 import { useAuth } from "@/context/auth-context";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ExternalLink } from "lucide-react";
 import Image from "next/image";
+import { getProfile } from "@/lib/user";
 
 export default function Home() {
   const { user, loading: authLoading, signIn } = useAuth();
   const { links } = useLinkContext();
+  const [myUsername, setMyUsername] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) {
+      setMyUsername(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const profile = await getProfile(user.uid);
+      if (cancelled) return;
+      setMyUsername(profile?.username ?? null);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   if (authLoading) return null;
 
@@ -69,8 +89,21 @@ export default function Home() {
         <h1 className="mt-5 text-2xl font-bold tracking-tight text-foreground">
           {user.displayName ?? "이름 없음"}
         </h1>
-        {user.email && (
-          <p className="mt-1.5 text-sm text-muted-foreground">{user.email}</p>
+        {myUsername ? (
+          <Link
+            href={`/${myUsername}`}
+            className="mt-1.5 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            @{myUsername}
+            <ExternalLink size={12} strokeWidth={1.8} />
+          </Link>
+        ) : (
+          <Link
+            href="/mypage"
+            className="mt-1.5 inline-block rounded-full border border-dashed border-muted-foreground/30 px-3 py-1 text-[12px] text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground"
+          >
+            공개 URL을 설정하려면 클릭하세요
+          </Link>
         )}
       </header>
 

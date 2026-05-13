@@ -14,6 +14,7 @@ import {
   signOut as firebaseSignOut,
 } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
+import { upsertUserProfile } from "@/lib/user";
 
 interface AuthContextType {
   user: User | null;
@@ -29,9 +30,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (current) => {
+    const unsub = onAuthStateChanged(auth, async (current) => {
       setUser(current);
       setLoading(false);
+      if (current) {
+        // 로그인 사용자의 기본 프로필을 Firestore에 동기화 (공개 페이지에서 쓰임)
+        try {
+          await upsertUserProfile({
+            uid: current.uid,
+            displayName: current.displayName,
+            photoURL: current.photoURL,
+          });
+        } catch (err) {
+          console.error("Profile upsert failed:", err);
+        }
+      }
     });
     return () => unsub();
   }, []);

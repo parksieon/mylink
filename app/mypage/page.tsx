@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from "react";
+import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useLinkContext } from "@/context/link-context";
 import { useAuth } from "@/context/auth-context";
 import { Pencil, Trash2, Check, X } from "lucide-react";
+import { getProfile, setUsername } from "@/lib/user";
 
 interface FieldErrors {
   title?: string;
@@ -36,6 +38,45 @@ export default function MyPage() {
   const [editErrors, setEditErrors] = useState<FieldErrors>({});
 
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+
+  const [savedUsername, setSavedUsername] = useState<string>("");
+  const [usernameInput, setUsernameInput] = useState<string>("");
+  const [usernameStatus, setUsernameStatus] = useState<{
+    kind: "ok" | "error";
+    message: string;
+  } | null>(null);
+  const [usernameSaving, setUsernameSaving] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const profile = await getProfile(user.uid);
+      if (cancelled) return;
+      const u = profile?.username ?? "";
+      setSavedUsername(u);
+      setUsernameInput(u);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  const handleUsernameSave = async () => {
+    if (!user) return;
+    const trimmed = usernameInput.trim().toLowerCase();
+    setUsernameSaving(true);
+    setUsernameStatus(null);
+    const result = await setUsername(user.uid, trimmed, savedUsername || undefined);
+    setUsernameSaving(false);
+    if (!result.ok) {
+      setUsernameStatus({ kind: "error", message: result.reason });
+      return;
+    }
+    setSavedUsername(trimmed);
+    setUsernameInput(trimmed);
+    setUsernameStatus({ kind: "ok", message: "저장됐어요!" });
+  };
 
   const validate = (t: string, u: string): FieldErrors => {
     const newErrors: FieldErrors = {};
@@ -122,6 +163,68 @@ export default function MyPage() {
           새로운 링크를 추가하고 관리하세요.
         </p>
       </div>
+
+      {/* Username 설정 */}
+      <section className="mb-12 rounded-2xl bg-card p-6 ring-1 ring-border/60 sm:p-8">
+        <h2 className="text-lg font-semibold tracking-tight text-foreground">
+          내 페이지 주소
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          공개 URL이 <span className="font-mono">/내_username</span> 형태로 만들어져요. 3~20자 영문 소문자, 숫자, _, - 만 가능해요.
+        </p>
+        <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+          <div className="flex flex-1 items-center overflow-hidden rounded-md border border-input bg-background pl-3 focus-within:ring-2 focus-within:ring-ring/40">
+            <span className="select-none text-sm text-muted-foreground">/</span>
+            <Input
+              value={usernameInput}
+              onChange={(e) => {
+                setUsernameInput(e.target.value);
+                if (usernameStatus) setUsernameStatus(null);
+              }}
+              placeholder="parksieon"
+              className="border-0 shadow-none focus-visible:ring-0"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+            />
+          </div>
+          <Button
+            type="button"
+            onClick={handleUsernameSave}
+            disabled={
+              usernameSaving ||
+              !usernameInput.trim() ||
+              usernameInput.trim().toLowerCase() === savedUsername
+            }
+            className="cursor-pointer"
+          >
+            {usernameSaving ? "저장 중..." : savedUsername ? "변경" : "설정"}
+          </Button>
+        </div>
+        {usernameStatus && (
+          <p
+            className={
+              "mt-2 text-[13px] " +
+              (usernameStatus.kind === "ok"
+                ? "text-emerald-600"
+                : "text-destructive")
+            }
+          >
+            {usernameStatus.message}
+          </p>
+        )}
+        {savedUsername && (
+          <p className="mt-3 text-[13px] text-muted-foreground">
+            현재 공개 URL:{" "}
+            <Link
+              href={`/${savedUsername}`}
+              className="font-medium text-foreground underline-offset-2 hover:underline"
+            >
+              /{savedUsername}
+            </Link>
+          </p>
+        )}
+      </section>
 
       {/* Add Form */}
       <section className="mb-16 rounded-2xl bg-card p-6 ring-1 ring-border/60 sm:p-8">
