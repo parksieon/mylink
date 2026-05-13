@@ -1,59 +1,123 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
-import { dummyLinks, LinkItem } from "@/data/links";
-import { Link as LinkIcon, LucideIcon } from "lucide-react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import {
+  collection,
+  doc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  setDoc,
+  getDocs,
+  onSnapshot,
+  orderBy,
+  query,
+} from "firebase/firestore";
+import { LucideIcon } from "lucide-react";
+import { db } from "@/lib/firebase";
+import { seedLinks } from "@/data/links";
+import { getIcon } from "@/lib/icon-map";
 
 export interface UserLink {
   id: string;
   title: string;
   url: string;
+  iconName: string;
   icon: LucideIcon;
 }
 
 interface LinkContextType {
   links: UserLink[];
-  addLink: (title: string, url: string) => void;
-  updateLink: (id: string, title: string, url: string) => void;
-  deleteLink: (id: string) => void;
+  loading: boolean;
+  addLink: (title: string, url: string) => Promise<void>;
+  updateLink: (id: string, title: string, url: string) => Promise<void>;
+  deleteLink: (id: string) => Promise<void>;
 }
 
 const LinkContext = createContext<LinkContextType | null>(null);
+const LINKS_COLLECTION = "links";
 
 export function LinkProvider({ children }: { children: ReactNode }) {
-  const [links, setLinks] = useState<UserLink[]>(
-    dummyLinks.map((link: LinkItem) => ({
-      id: link.id,
-      title: link.title,
-      url: link.url,
-      icon: link.icon,
-    }))
-  );
+  const [links, setLinks] = useState<UserLink[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const addLink = (title: string, url: string) => {
-    const newLink: UserLink = {
-      id: crypto.randomUUID(),
+  useEffect(() => {
+    const linksRef = collection(db, LINKS_COLLECTION);
+    const linksQuery = query(linksRef, orderBy("createdAt", "asc"));
+
+    // First-run seed: 컬렉션이 비어있으면 기본 링크 4개 자동 삽입
+    (async () => {
+      try {
+        const snap = await getDocs(linksRef);
+        if (snap.empty) {
+          for (let i = 0; i < seedLinks.length; i++) {
+            const seed = seedLinks[i];
+            await setDoc(doc(db, LINKS_COLLECTION, seed.id), {
+              title: seed.title,
+              url: seed.url,
+              iconName: seed.iconName,
+              createdAt: Date.now() + i,
+            });
+          }
+        }
+      } catch (err) {
+        console.error("Firestore seed failed:", err);
+      }
+    })();
+
+    const unsubscribe = onSnapshot(
+      linksQuery,
+      (snapshot) => {
+        const items: UserLink[] = snapshot.docs.map((d) => {
+          const data = d.data();
+          const iconName = (data.iconName as string) || "Link";
+          return {
+            id: d.id,
+            title: data.title as string,
+            url: data.url as string,
+            iconName,
+            icon: getIcon(iconName),
+          };
+        });
+        setLinks(items);
+        setLoading(false);
+      },
+      (err) => {
+        console.error("Firestore subscribe failed:", err);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  const addLink = async (title: string, url: string) => {
+    await addDoc(collection(db, LINKS_COLLECTION), {
       title,
       url,
-      icon: LinkIcon,
-    };
-    setLinks((prev) => [...prev, newLink]);
+      iconName: "Link",
+      createdAt: Date.now(),
+    });
   };
 
-  const updateLink = (id: string, title: string, url: string) => {
-    setLinks((prev) =>
-      prev.map((link) =>
-        link.id === id ? { ...link, title, url } : link
-      )
-    );
+  const updateLink = async (id: string, title: string, url: string) => {
+    await updateDoc(doc(db, LINKS_COLLECTION, id), { title, url });
   };
 
-  const deleteLink = (id: string) => {
-    setLinks((prev) => prev.filter((link) => link.id !== id));
+  const deleteLink = async (id: string) => {
+    await deleteDoc(doc(db, LINKS_COLLECTION, id));
   };
 
   return (
-    <LinkContext.Provider value={{ links, addLink, updateLink, deleteLink }}>
+    <LinkContext.Provider
+      value={{ links, loading, addLink, updateLink, deleteLink }}
+    >
       {children}
     </LinkContext.Provider>
   );
