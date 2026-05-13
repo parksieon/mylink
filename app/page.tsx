@@ -1,16 +1,19 @@
 "use client";
 
 import { useLinkContext } from "@/context/link-context";
+import { useAuth } from "@/context/auth-context";
 import { ChevronRight } from "lucide-react";
 import Image from "next/image";
 
 export default function Home() {
+  const { user, loading: authLoading, signIn } = useAuth();
   const { links } = useLinkContext();
 
-  return (
-    <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-lg flex-col px-6 pb-12 pt-20">
-      {/* Profile Hero */}
-      <header className="flex flex-col items-center text-center">
+  if (authLoading) return null;
+
+  if (!user) {
+    return (
+      <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-md flex-col items-center justify-center px-6 text-center">
         <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-white ring-1 ring-border/60">
           <Image
             src="/CelloIMG.png"
@@ -21,15 +24,54 @@ export default function Home() {
             className="h-20 w-20 object-contain"
           />
         </div>
-        <h1 className="mt-5 text-2xl font-bold tracking-tight text-foreground">
-          박시언
+        <h1 className="mt-6 text-2xl font-bold tracking-tight text-foreground">
+          MyLink
         </h1>
-        <p className="mt-1.5 text-sm text-muted-foreground">
-          광운대 정보융합학부 22학번
+        <p className="mt-2 max-w-xs text-[13px] leading-relaxed text-muted-foreground">
+          Google 계정으로 로그인하고 나만의 링크 모음을 만들어보세요.
         </p>
-        <p className="mt-3 max-w-xs text-[13px] leading-relaxed text-muted-foreground/80">
-          코드로 세상을 더 행복하게 만들고 싶은 학생
-        </p>
+        <button
+          type="button"
+          onClick={signIn}
+          className="mt-8 cursor-pointer rounded-xl bg-foreground px-6 py-3 text-sm font-medium text-background transition-opacity hover:opacity-90 active:scale-[0.98]"
+        >
+          Google로 시작하기
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-lg flex-col px-6 pb-12 pt-20">
+      {/* Profile Hero */}
+      <header className="flex flex-col items-center text-center">
+        <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-white ring-1 ring-border/60">
+          {user.photoURL ? (
+            <Image
+              src={user.photoURL}
+              alt={user.displayName ?? "프로필"}
+              width={96}
+              height={96}
+              unoptimized
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <Image
+              src="/CelloIMG.png"
+              alt="첼로"
+              width={96}
+              height={96}
+              priority
+              className="h-20 w-20 object-contain"
+            />
+          )}
+        </div>
+        <h1 className="mt-5 text-2xl font-bold tracking-tight text-foreground">
+          {user.displayName ?? "이름 없음"}
+        </h1>
+        {user.email && (
+          <p className="mt-1.5 text-sm text-muted-foreground">{user.email}</p>
+        )}
       </header>
 
       {/* Links */}

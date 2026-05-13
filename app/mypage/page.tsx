@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useLinkContext } from "@/context/link-context";
+import { useAuth } from "@/context/auth-context";
 import { Pencil, Trash2, Check, X } from "lucide-react";
 
 interface FieldErrors {
@@ -22,6 +23,7 @@ function isValidUrl(value: string): boolean {
 }
 
 export default function MyPage() {
+  const { user, loading: authLoading, signIn } = useAuth();
   const { links, addLink, updateLink, deleteLink } = useLinkContext();
 
   const [title, setTitle] = useState("");
@@ -86,6 +88,28 @@ export default function MyPage() {
   };
 
   const deleteTarget = links.find((l) => l.id === deleteTargetId);
+
+  if (authLoading) return null;
+
+  if (!user) {
+    return (
+      <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-md flex-col items-center justify-center px-6 text-center">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          로그인이 필요해요
+        </h1>
+        <p className="mt-2 max-w-xs text-[13px] leading-relaxed text-muted-foreground">
+          링크를 추가하거나 수정하려면 Google 계정으로 로그인해주세요.
+        </p>
+        <button
+          type="button"
+          onClick={signIn}
+          className="mt-8 cursor-pointer rounded-xl bg-foreground px-6 py-3 text-sm font-medium text-background transition-opacity hover:opacity-90 active:scale-[0.98]"
+        >
+          Google로 로그인
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-2xl px-6 pb-20 pt-16">

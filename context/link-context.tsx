@@ -23,6 +23,7 @@ import { LucideIcon } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { seedLinks } from "@/data/links";
 import { getIcon } from "@/lib/icon-map";
+import { useAuth } from "@/context/auth-context";
 
 export interface UserLink {
   id: string;
@@ -41,24 +42,41 @@ interface LinkContextType {
 }
 
 const LinkContext = createContext<LinkContextType | null>(null);
-const LINKS_COLLECTION = "links";
+
+function userLinksRef(uid: string) {
+  return collection(db, "users", uid, "links");
+}
+
+function userLinkDoc(uid: string, id: string) {
+  return doc(db, "users", uid, "links", id);
+}
 
 export function LinkProvider({ children }: { children: ReactNode }) {
+  const { user, loading: authLoading } = useAuth();
   const [links, setLinks] = useState<UserLink[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const linksRef = collection(db, LINKS_COLLECTION);
+    if (authLoading) return;
+
+    if (!user) {
+      setLinks([]);
+      setLoading(false);
+      return;
+    }
+
+    const uid = user.uid;
+    const linksRef = userLinksRef(uid);
     const linksQuery = query(linksRef, orderBy("createdAt", "asc"));
 
-    // First-run seed: 컬렉션이 비어있으면 기본 링크 4개 자동 삽입
+    // First-run seed: 사용자 컬렉션이 비어있으면 기본 링크 자동 삽입
     (async () => {
       try {
         const snap = await getDocs(linksRef);
         if (snap.empty) {
           for (let i = 0; i < seedLinks.length; i++) {
             const seed = seedLinks[i];
-            await setDoc(doc(db, LINKS_COLLECTION, seed.id), {
+            await setDoc(userLinkDoc(uid, seed.id), {
               title: seed.title,
               url: seed.url,
               iconName: seed.iconName,
@@ -71,6 +89,7 @@ export function LinkProvider({ children }: { children: ReactNode }) {
       }
     })();
 
+    setLoading(true);
     const unsubscribe = onSnapshot(
       linksQuery,
       (snapshot) => {
@@ -95,10 +114,11 @@ export function LinkProvider({ children }: { children: ReactNode }) {
     );
 
     return () => unsubscribe();
-  }, []);
+  }, [user, authLoading]);
 
   const addLink = async (title: string, url: string) => {
-    await addDoc(collection(db, LINKS_COLLECTION), {
+    if (!user) return;
+    await addDoc(userLinksRef(user.uid), {
       title,
       url,
       iconName: "Link",
@@ -107,11 +127,13 @@ export function LinkProvider({ children }: { children: ReactNode }) {
   };
 
   const updateLink = async (id: string, title: string, url: string) => {
-    await updateDoc(doc(db, LINKS_COLLECTION, id), { title, url });
+    if (!user) return;
+    await updateDoc(userLinkDoc(user.uid, id), { title, url });
   };
 
   const deleteLink = async (id: string) => {
-    await deleteDoc(doc(db, LINKS_COLLECTION, id));
+    if (!user) return;
+    await deleteDoc(userLinkDoc(user.uid, id));
   };
 
   return (

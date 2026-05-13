@@ -3,7 +3,9 @@ import { Geist } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { AuthProvider } from "@/context/auth-context";
 import { LinkProvider } from "@/context/link-context";
+import { NavUserMenu } from "@/components/nav-user-menu";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -39,25 +41,30 @@ export default function RootLayout({
   return (
     <html lang="ko" className={cn("font-sans", geist.variable)}>
       <body className="antialiased">
-        <nav className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl backdrop-saturate-150">
-          <div className="mx-auto flex h-12 max-w-3xl items-center justify-between px-6">
-            <Link
-              href="/"
-              className="text-sm font-semibold tracking-tight text-foreground transition-opacity hover:opacity-60"
-            >
-              MyLink
-            </Link>
-            <Link
-              href="/mypage"
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-              관리
-            </Link>
-          </div>
-        </nav>
-        <LinkProvider>
-          <main>{children}</main>
-        </LinkProvider>
+        <AuthProvider>
+          <nav className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl backdrop-saturate-150">
+            <div className="mx-auto flex h-12 max-w-3xl items-center justify-between px-6">
+              <Link
+                href="/"
+                className="text-sm font-semibold tracking-tight text-foreground transition-opacity hover:opacity-60"
+              >
+                MyLink
+              </Link>
+              <div className="flex items-center gap-6">
+                <Link
+                  href="/mypage"
+                  className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  관리
+                </Link>
+                <NavUserMenu />
+              </div>
+            </div>
+          </nav>
+          <LinkProvider>
+            <main>{children}</main>
+          </LinkProvider>
+        </AuthProvider>
       </body>
     </html>
   );
