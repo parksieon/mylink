@@ -7,6 +7,7 @@ import Link from "next/link";
 import {
   getProfileByUsername,
   getUserLinks,
+  incrementLinkClick,
   type UserProfile,
   type PublicLink,
 } from "@/lib/user";
@@ -107,6 +108,9 @@ export default function UsernamePage({ params }: PageProps) {
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => {
+                  incrementLinkClick(profile.uid, link.id);
+                }}
                 className="group flex w-full items-center gap-4 rounded-2xl bg-card p-4 ring-1 ring-border/60 transition-all duration-200 hover:ring-border hover:shadow-sm active:scale-[0.98]"
               >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-foreground/[0.04] text-foreground/60 transition-colors group-hover:bg-foreground/[0.07] group-hover:text-foreground">

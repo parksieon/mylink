@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useLinkContext } from "@/context/link-context";
 import { useAuth } from "@/context/auth-context";
-import { Pencil, Trash2, Check, X } from "lucide-react";
+import { Pencil, Trash2, Check, X, MousePointerClick } from "lucide-react";
 import { getProfile, setUsername } from "@/lib/user";
 
 interface FieldErrors {
@@ -155,13 +155,23 @@ export default function MyPage() {
   return (
     <div className="mx-auto max-w-2xl px-6 pb-20 pt-16">
       {/* Header */}
-      <div className="mb-12">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          링크 관리
-        </h1>
-        <p className="mt-2 text-base text-muted-foreground">
-          새로운 링크를 추가하고 관리하세요.
-        </p>
+      <div className="mb-12 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            링크 관리
+          </h1>
+          <p className="mt-2 text-base text-muted-foreground">
+            새로운 링크를 추가하고 관리하세요.
+          </p>
+        </div>
+        <div className="rounded-xl bg-foreground/[0.04] px-4 py-2.5 ring-1 ring-border/60">
+          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            총 클릭
+          </p>
+          <p className="mt-0.5 text-xl font-bold tracking-tight text-foreground">
+            {links.reduce((sum, l) => sum + (l.clickCount ?? 0), 0).toLocaleString()}
+          </p>
+        </div>
       </div>
 
       {/* Username 설정 */}
@@ -364,6 +374,13 @@ export default function MyPage() {
                   <p className="mt-0.5 truncate text-[13px] text-muted-foreground">
                     {link.url}
                   </p>
+                </div>
+                <div
+                  className="flex shrink-0 items-center gap-1 rounded-md bg-foreground/[0.04] px-2 py-1 text-[12px] font-medium text-muted-foreground"
+                  title={`${link.clickCount} 회 클릭`}
+                >
+                  <MousePointerClick size={12} strokeWidth={2} />
+                  <span className="tabular-nums">{link.clickCount}</span>
                 </div>
                 <button
                   onClick={() => startEdit(link.id, link.title, link.url)}

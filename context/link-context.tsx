@@ -31,6 +31,7 @@ export interface UserLink {
   url: string;
   iconName: string;
   icon: LucideIcon;
+  clickCount: number;
 }
 
 interface LinkContextType {
@@ -102,6 +103,7 @@ export function LinkProvider({ children }: { children: ReactNode }) {
             url: data.url as string,
             iconName,
             icon: getIcon(iconName),
+            clickCount: (data.clickCount as number) ?? 0,
           };
         });
         setLinks(items);
@@ -123,6 +125,7 @@ export function LinkProvider({ children }: { children: ReactNode }) {
       url,
       iconName: "Link",
       createdAt: Date.now(),
+      clickCount: 0,
     });
   };
 

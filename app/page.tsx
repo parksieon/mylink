@@ -6,7 +6,7 @@ import { useLinkContext } from "@/context/link-context";
 import { useAuth } from "@/context/auth-context";
 import { ChevronRight, ExternalLink } from "lucide-react";
 import Image from "next/image";
-import { getProfile } from "@/lib/user";
+import { getProfile, incrementLinkClick } from "@/lib/user";
 
 export default function Home() {
   const { user, loading: authLoading, signIn } = useAuth();
@@ -117,6 +117,9 @@ export default function Home() {
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => {
+                incrementLinkClick(user.uid, link.id);
+              }}
               className="group flex w-full items-center gap-4 rounded-2xl bg-card p-4 ring-1 ring-border/60 transition-all duration-200 hover:ring-border hover:shadow-sm active:scale-[0.98]"
             >
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-foreground/[0.04] text-foreground/60 transition-colors group-hover:bg-foreground/[0.07] group-hover:text-foreground">

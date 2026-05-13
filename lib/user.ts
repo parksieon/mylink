@@ -2,6 +2,8 @@ import {
   doc,
   getDoc,
   setDoc,
+  updateDoc,
+  increment,
   runTransaction,
   collection,
   query,
@@ -22,6 +24,7 @@ export interface PublicLink {
   title: string;
   url: string;
   iconName: string;
+  clickCount: number;
 }
 
 const USERNAME_REGEX = /^[a-z0-9][a-z0-9_-]{2,19}$/;
@@ -58,8 +61,23 @@ export async function getUserLinks(uid: string): Promise<PublicLink[]> {
       title: data.title as string,
       url: data.url as string,
       iconName: (data.iconName as string) ?? "Link",
+      clickCount: (data.clickCount as number) ?? 0,
     };
   });
+}
+
+export async function incrementLinkClick(
+  uid: string,
+  linkId: string
+): Promise<void> {
+  try {
+    await updateDoc(doc(db, "users", uid, "links", linkId), {
+      clickCount: increment(1),
+    });
+  } catch (err) {
+    // 통계 누락은 사용자 흐름을 막지 않도록 조용히 로그만 남김
+    console.error("incrementLinkClick failed:", err);
+  }
 }
 
 export type SetUsernameResult =
