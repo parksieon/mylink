@@ -43,7 +43,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const code = (err as { code?: string })?.code;
       if (code === "auth/popup-blocked") {
         alert(
-          "팝업이 차단되어 로그인할 수 없습니다.\n\n주소창 우측의 팝업 차단 아이콘을 클릭해 이 사이트의 팝업을 허용한 뒤 다시 시도해주세요."
+          "Google 로그인 팝업을 띄울 수 없습니다.\n\n" +
+            "• 브라우저 주소창의 팝업 차단 아이콘을 확인해주세요\n" +
+            "• 광고 차단기(AdGuard, uBlock 등)를 쓰고 있다면 이 사이트에서 잠시 꺼주세요"
         );
         return;
       }
