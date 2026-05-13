@@ -2,7 +2,7 @@
 
 import { useLinkContext } from "@/context/link-context";
 import { ChevronRight } from "lucide-react";
-import { Cello } from "@/components/icons/cello";
+import Image from "next/image";
 
 export default function Home() {
   const { links } = useLinkContext();
@@ -11,8 +11,15 @@ export default function Home() {
     <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-lg flex-col px-6 pb-12 pt-20">
       {/* Profile Hero */}
       <header className="flex flex-col items-center text-center">
-        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-foreground/[0.08] to-foreground/[0.02] ring-1 ring-border/60">
-          <Cello size={44} strokeWidth={1.5} className="text-foreground/70" />
+        <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-white ring-1 ring-border/60">
+          <Image
+            src="/CelloIMG.png"
+            alt="첼로"
+            width={96}
+            height={96}
+            priority
+            className="h-20 w-20 object-contain"
+          />
         </div>
         <h1 className="mt-5 text-2xl font-bold tracking-tight text-foreground">
           박시언

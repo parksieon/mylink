@@ -1,14 +1,16 @@
+import fs from "node:fs";
+import path from "node:path";
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
 export const alt = "박시언 — MyLink";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const CELLO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 2.5a1.5 1.5 0 1 1 2 0v1h-2z"/><path d="M12 3.5v6.5"/><path d="M10.5 10h3"/><path d="M12 10c-2.6 0-4 1.4-4 2.8 0 .9.4 1.4.9 1.9-1.2.6-1.9 2-1.9 3.5 0 2.1 1.7 3.8 5 3.8s5-1.7 5-3.8c0-1.5-.7-2.9-1.9-3.5.5-.5.9-1 .9-1.9 0-1.4-1.4-2.8-4-2.8z"/><path d="M10 15.5v2"/><path d="M14 15.5v2"/></svg>`;
-
 export default async function OpengraphImage() {
-  const celloDataUrl = `data:image/svg+xml;utf8,${encodeURIComponent(CELLO_SVG)}`;
+  const imageBuffer = fs.readFileSync(
+    path.join(process.cwd(), "public", "CelloIMG.png")
+  );
+  const celloDataUrl = `data:image/png;base64,${imageBuffer.toString("base64")}`;
 
   return new ImageResponse(
     (
@@ -31,16 +33,17 @@ export default async function OpengraphImage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            width: 180,
-            height: 180,
+            width: 200,
+            height: 200,
             borderRadius: "9999px",
             background: "#ffffff",
             border: "1px solid #e4e4e7",
             marginBottom: 36,
+            overflow: "hidden",
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={celloDataUrl} width={110} height={110} alt="" />
+          <img src={celloDataUrl} width={160} height={160} alt="" />
         </div>
         <div
           style={{
