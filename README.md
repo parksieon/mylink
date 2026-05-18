@@ -6,8 +6,6 @@ Google 계정으로 로그인해 본인만의 공개 URL(`/내_username`)을 만
 
 🔗 **Live Demo**: [https://mylink-nine.vercel.app](https://mylink-nine.vercel.app)
 
-> 광운대 정보융합학부 *바이브 코딩 시대의 SW 개발 입문* 수업의 학기 프로젝트입니다.
-
 ---
 
 ## 주요 기능
