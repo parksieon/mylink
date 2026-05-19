@@ -38,7 +38,7 @@ export type ResolvedLayout = {
   groups: BlockGroup[];          // grouped by floor for UI
   totalSeats: number;
   resolvedAt: number;            // ms epoch
-  source: 'externalSeatMeta';
+  source: 'externalSeatMeta' | 'preset';
 };
 
 async function fetchPair(
