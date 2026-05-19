@@ -2,20 +2,22 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useLinkContext } from "@/context/link-context";
-import { useAuth } from "@/context/auth-context";
-import { ChevronRight, ExternalLink } from "lucide-react";
 import Image from "next/image";
-import { getProfile, incrementLinkClick } from "@/lib/user";
+import { ExternalLink, LayoutGrid, User, Sparkles } from "lucide-react";
+import { useAuth } from "@/context/auth-context";
+import { getProfile } from "@/lib/user";
 
 export default function Home() {
   const { user, loading: authLoading, signIn } = useAuth();
-  const { links } = useLinkContext();
   const [myUsername, setMyUsername] = useState<string | null>(null);
+  const [myDisplayName, setMyDisplayName] = useState<string | null>(null);
+  const [myBio, setMyBio] = useState<string>("");
 
   useEffect(() => {
     if (!user) {
       setMyUsername(null);
+      setMyDisplayName(null);
+      setMyBio("");
       return;
     }
     let cancelled = false;
@@ -23,6 +25,8 @@ export default function Home() {
       const profile = await getProfile(user.uid);
       if (cancelled) return;
       setMyUsername(profile?.username ?? null);
+      setMyDisplayName(profile?.displayName ?? user.displayName ?? null);
+      setMyBio(profile?.bio ?? "");
     })();
     return () => {
       cancelled = true;
@@ -48,7 +52,7 @@ export default function Home() {
           MyLink
         </h1>
         <p className="mt-2 max-w-xs text-[13px] leading-relaxed text-muted-foreground">
-          Google 계정으로 로그인하고 나만의 링크 모음을 만들어보세요.
+          Google 계정으로 로그인하고 나만의 페이지를 만들어보세요.
         </p>
         <button
           type="button"
@@ -62,8 +66,7 @@ export default function Home() {
   }
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-lg flex-col px-6 pb-12 pt-20">
-      {/* Profile Hero */}
+    <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-2xl flex-col px-6 pb-12 pt-20">
       <header className="flex flex-col items-center text-center">
         <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-white ring-1 ring-border/60">
           {user.photoURL ? (
@@ -87,7 +90,7 @@ export default function Home() {
           )}
         </div>
         <h1 className="mt-5 text-2xl font-bold tracking-tight text-foreground">
-          {user.displayName ?? "이름 없음"}
+          {myDisplayName ?? "이름 없음"}
         </h1>
         {myUsername ? (
           <Link
@@ -99,49 +102,73 @@ export default function Home() {
           </Link>
         ) : (
           <Link
-            href="/mypage"
+            href="/profile"
             className="mt-1.5 inline-block rounded-full border border-dashed border-muted-foreground/30 px-3 py-1 text-[12px] text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground"
           >
-            공개 URL을 설정하려면 클릭하세요
+            username 설정하기
           </Link>
+        )}
+        {myBio && (
+          <p className="mt-4 max-w-md whitespace-pre-wrap text-[14px] leading-relaxed text-foreground/80">
+            {myBio}
+          </p>
         )}
       </header>
 
-      {/* Links */}
-      <div className="mt-12 w-full space-y-3">
-        {links.map((link) => {
-          const Icon = link.icon;
-          return (
-            <a
-              key={link.id}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => {
-                incrementLinkClick(user.uid, link.id);
-              }}
-              className="group flex w-full items-center gap-4 rounded-2xl bg-card p-4 ring-1 ring-border/60 transition-all duration-200 hover:ring-border hover:shadow-sm active:scale-[0.98]"
-            >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-foreground/[0.04] text-foreground/60 transition-colors group-hover:bg-foreground/[0.07] group-hover:text-foreground">
-                <Icon size={20} strokeWidth={1.8} />
-              </div>
-              <span className="flex-1 text-[15px] font-medium text-foreground">
-                {link.title}
-              </span>
-              <ChevronRight
-                size={16}
-                className="text-foreground/20 transition-all group-hover:translate-x-0.5 group-hover:text-foreground/40"
-              />
-            </a>
-          );
-        })}
+      <div className="mt-12 grid gap-3 sm:grid-cols-2">
+        <Link
+          href="/mypage"
+          className="group flex items-center gap-4 rounded-2xl bg-card p-5 ring-1 ring-border/60 transition-all hover:ring-border hover:shadow-sm active:scale-[0.99]"
+        >
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-foreground/[0.04] text-foreground/60 transition-colors group-hover:bg-foreground/[0.07] group-hover:text-foreground">
+            <LayoutGrid size={22} strokeWidth={1.8} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-[15px] font-semibold text-foreground">관리</div>
+            <div className="mt-0.5 text-[12px] text-muted-foreground">
+              폴더·자료·링크 추가하고 꾸미기
+            </div>
+          </div>
+        </Link>
+        <Link
+          href="/profile"
+          className="group flex items-center gap-4 rounded-2xl bg-card p-5 ring-1 ring-border/60 transition-all hover:ring-border hover:shadow-sm active:scale-[0.99]"
+        >
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-foreground/[0.04] text-foreground/60 transition-colors group-hover:bg-foreground/[0.07] group-hover:text-foreground">
+            <User size={22} strokeWidth={1.8} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-[15px] font-semibold text-foreground">프로필</div>
+            <div className="mt-0.5 text-[12px] text-muted-foreground">
+              username·소개글 설정
+            </div>
+          </div>
+        </Link>
       </div>
 
-      {/* Footer */}
+      {myUsername && (
+        <Link
+          href={`/${myUsername}`}
+          className="group mt-3 flex items-center gap-4 rounded-2xl bg-card p-5 ring-1 ring-border/60 transition-all hover:ring-border hover:shadow-sm active:scale-[0.99]"
+        >
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-foreground/[0.04] text-foreground/60 transition-colors group-hover:bg-foreground/[0.07] group-hover:text-foreground">
+            <Sparkles size={22} strokeWidth={1.8} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-[15px] font-semibold text-foreground">
+              내 공개 페이지 열기
+            </div>
+            <div className="mt-0.5 truncate text-[12px] text-muted-foreground">
+              /{myUsername}
+            </div>
+          </div>
+          <ExternalLink size={14} className="shrink-0 text-foreground/30" />
+        </Link>
+      )}
+
       <footer className="mt-auto pt-16 text-center">
         <p className="text-[11px] tracking-wide text-muted-foreground/60">
-          Powered by{" "}
-          <span className="font-semibold text-foreground/70">MyLink</span>
+          Powered by <span className="font-semibold text-foreground/70">MyLink</span>
         </p>
       </footer>
     </div>
