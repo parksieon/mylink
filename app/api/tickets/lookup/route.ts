@@ -55,7 +55,13 @@ function presetAsLayout(template: VenueTemplate): { layout: ResolvedLayout; plac
 }
 
 export async function GET(req: Request) {
-  try { await requireAuth(req); } catch { return new NextResponse('Unauthorized', { status: 401 }); }
+  try {
+    await requireAuth(req);
+  } catch (e) {
+    const msg = (e as Error).message ?? 'unknown';
+    console.error('[lookup] auth failed:', msg, (e as Error).stack);
+    return new NextResponse(`Unauthorized: ${msg}`, { status: 401 });
+  }
 
   const url = new URL(req.url);
   const input = url.searchParams.get('url') ?? '';
