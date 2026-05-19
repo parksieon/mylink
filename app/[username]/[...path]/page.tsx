@@ -73,9 +73,9 @@ export default function NestedPage({ params }: PageProps) {
 
   useEffect(() => {
     if (result?.state === "folder") {
-      document.title = `${result.folder.name} | @${username}의 MyLink`;
+      document.title = `${result.folder.name} | @${username}의 TimeFilm`;
     } else if (result?.state === "leaf") {
-      document.title = `${result.leaf.name} | @${username}의 MyLink`;
+      document.title = `${result.leaf.name} | @${username}의 TimeFilm`;
     }
   }, [result, username]);
 

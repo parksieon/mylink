@@ -49,7 +49,7 @@ export default function Home() {
           />
         </div>
         <h1 className="mt-6 text-2xl font-bold tracking-tight text-foreground">
-          MyLink
+          TimeFilm
         </h1>
         <p className="mt-2 max-w-xs text-[13px] leading-relaxed text-muted-foreground">
           Google 계정으로 로그인하고 나만의 페이지를 만들어보세요.
@@ -168,7 +168,7 @@ export default function Home() {
 
       <footer className="mt-auto pt-16 text-center">
         <p className="text-[11px] tracking-wide text-muted-foreground/60">
-          Powered by <span className="font-semibold text-foreground/70">MyLink</span>
+          Powered by <span className="font-semibold text-foreground/70">TimeFilm</span>
         </p>
       </footer>
     </div>

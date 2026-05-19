@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { ImageResponse } from "next/og";
 
-export const alt = "박시언 — MyLink";
+export const alt = "박시언 — TimeFilm";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -55,7 +55,7 @@ export default async function OpengraphImage() {
             textAlign: "center",
           }}
         >
-          박시언의 MyLink
+          박시언의 TimeFilm
         </div>
         <div
           style={{
@@ -88,7 +88,7 @@ export default async function OpengraphImage() {
               background: "#18181b",
             }}
           />
-          MyLink
+          TimeFilm
         </div>
       </div>
     ),

@@ -49,9 +49,9 @@ export default function UsernamePage({ params }: PageProps) {
 
   useEffect(() => {
     if (profile?.displayName) {
-      document.title = `${profile.displayName}의 MyLink`;
+      document.title = `${profile.displayName}의 TimeFilm`;
     } else {
-      document.title = `@${username}의 MyLink`;
+      document.title = `@${username}의 TimeFilm`;
     }
   }, [profile, username]);
 

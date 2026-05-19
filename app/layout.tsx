@@ -11,22 +11,22 @@ const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 export const metadata: Metadata = {
   metadataBase: new URL("https://mylink.vercel.app"),
   title: {
-    default: "박시언의 MyLink",
-    template: "%s · 박시언의 MyLink",
+    default: "박시언의 TimeFilm",
+    template: "%s · 박시언의 TimeFilm",
   },
   description:
     "코드로 세상을 더 행복하게 만들고 싶은 학생, 박시언의 페이지.",
   openGraph: {
     type: "website",
     locale: "ko_KR",
-    siteName: "박시언의 MyLink",
-    title: "박시언의 MyLink",
+    siteName: "박시언의 TimeFilm",
+    title: "박시언의 TimeFilm",
     description:
       "코드로 세상을 더 행복하게 만들고 싶은 학생, 박시언의 페이지.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "박시언의 MyLink",
+    title: "박시언의 TimeFilm",
     description:
       "코드로 세상을 더 행복하게 만들고 싶은 학생, 박시언의 페이지.",
   },
@@ -47,7 +47,7 @@ export default function RootLayout({
                 href="/"
                 className="text-sm font-semibold tracking-tight text-foreground transition-opacity hover:opacity-60"
               >
-                MyLink
+                TimeFilm
               </Link>
               <div className="flex items-center gap-6">
                 <Link

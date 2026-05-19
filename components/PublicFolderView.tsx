@@ -86,7 +86,7 @@ export function PublicFolderView({
               href="/"
               className="font-semibold text-foreground/70 transition-opacity hover:opacity-70"
             >
-              MyLink
+              TimeFilm
             </Link>
           </p>
         </footer>
