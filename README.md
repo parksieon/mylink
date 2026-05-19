@@ -135,11 +135,3 @@ components/
   └─ ui/                      # shadcn/ui 컴포넌트
 ```
 
-## 빌드 & 배포
-
-`main` 브랜치에 푸쉬하면 Vercel이 자동으로 빌드·배포합니다.
-환경변수는 Vercel 대시보드 → Settings → Environment Variables에 동일하게 등록되어 있습니다.
-
-## 라이선스
-
-학습 목적 프로젝트입니다.
