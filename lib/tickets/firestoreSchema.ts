@@ -1,5 +1,13 @@
 // /lib/tickets/firestoreSchema.ts
-import type { Timestamp } from 'firebase/firestore';
+// 구조 타입 — client SDK Timestamp 와 admin SDK Timestamp 둘 다 만족.
+// 서버는 admin SDK 로 쓰고 클라는 client SDK 로 읽으므로, 양쪽 SDK 의 Timestamp 가
+// 같은 schema 타입에 대입 가능해야 함.
+export interface Timestamp {
+  toDate(): Date;
+  toMillis(): number;
+  readonly seconds: number;
+  readonly nanoseconds: number;
+}
 
 export type VenueTemplate = 'SAC_CONCERT' | 'IBK_CHAMBER' | 'BUCHEON_CONCERT' | 'CUSTOM';
 
