@@ -1,0 +1,53 @@
+// Firestore Rules — Firebase 콘솔 → Firestore → Rules 탭에 붙여넣고 Publish 하세요.
+// 이 파일은 참고용이며 자동 배포되지 않습니다.
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // usernames — 본인 uid 매칭된 문서만 생성/삭제, 수정 불가 (스쿼팅 방지)
+    match /usernames/{username} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid;
+      allow delete: if request.auth != null
+        && resource.data.uid == request.auth.uid;
+      allow update: if false;
+    }
+
+    match /users/{uid} {
+      allow read: if true;
+
+      // 프로필 본문 — 본인만. quotaBytes는 콘솔에서만 수정 가능.
+      // 알려진 한계: 본인이 usedBytes를 임의로 0으로 리셋해서 quota 우회 가능 (학기 프로젝트 용인).
+      allow create: if isOwner(uid);
+      allow update: if isOwner(uid)
+        && !request.resource.data.diff(resource.data).affectedKeys()
+             .hasAny(['quotaBytes']);
+
+      // 통합 노드 컬렉션 (folder | article | link | html | 3d | pdf)
+      match /nodes/{nodeId} {
+        allow read: if isOwner(uid)
+          || resource.data.effectiveVisibility == "public";
+
+        allow create: if isOwner(uid)
+          && request.resource.data.depth >= 0
+          && request.resource.data.depth <= 3;
+
+        allow delete: if isOwner(uid);
+
+        // 본인 자유 수정 OR 익명/비로그인이 link의 clickCount만 +1
+        allow update: if isOwner(uid)
+          || (
+            resource.data.kind == "link"
+            && resource.data.effectiveVisibility == "public"
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['clickCount'])
+            && request.resource.data.clickCount == resource.data.clickCount + 1
+          );
+      }
+    }
+  }
+}

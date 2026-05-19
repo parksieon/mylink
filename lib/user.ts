@@ -2,13 +2,7 @@ import {
   doc,
   getDoc,
   setDoc,
-  updateDoc,
-  increment,
   runTransaction,
-  collection,
-  query,
-  orderBy,
-  getDocs,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
@@ -17,15 +11,10 @@ export interface UserProfile {
   displayName?: string;
   photoURL?: string;
   username?: string;
+  bio?: string;
 }
 
-export interface PublicLink {
-  id: string;
-  title: string;
-  url: string;
-  iconName: string;
-  clickCount: number;
-}
+export const BIO_MAX_LENGTH = 300;
 
 const USERNAME_REGEX = /^[a-z0-9][a-z0-9_-]{2,19}$/;
 
@@ -34,49 +23,27 @@ export function isValidUsername(username: string): boolean {
 }
 
 export async function getProfile(uid: string): Promise<UserProfile | null> {
-  const snap = await getDoc(doc(db, "users", uid));
-  if (!snap.exists()) return null;
-  return { uid, ...(snap.data() as Omit<UserProfile, "uid">) };
+  try {
+    const snap = await getDoc(doc(db, "users", uid));
+    if (!snap.exists()) return null;
+    return { uid, ...(snap.data() as Omit<UserProfile, "uid">) };
+  } catch (err) {
+    console.error("getProfile failed:", err);
+    return null;
+  }
 }
 
 export async function getProfileByUsername(
   username: string
 ): Promise<UserProfile | null> {
-  const mappingSnap = await getDoc(doc(db, "usernames", username));
-  if (!mappingSnap.exists()) return null;
-  const uid = mappingSnap.data().uid as string;
-  return getProfile(uid);
-}
-
-export async function getUserLinks(uid: string): Promise<PublicLink[]> {
-  const linksQ = query(
-    collection(db, "users", uid, "links"),
-    orderBy("createdAt", "asc")
-  );
-  const snap = await getDocs(linksQ);
-  return snap.docs.map((d) => {
-    const data = d.data();
-    return {
-      id: d.id,
-      title: data.title as string,
-      url: data.url as string,
-      iconName: (data.iconName as string) ?? "Link",
-      clickCount: (data.clickCount as number) ?? 0,
-    };
-  });
-}
-
-export async function incrementLinkClick(
-  uid: string,
-  linkId: string
-): Promise<void> {
   try {
-    await updateDoc(doc(db, "users", uid, "links", linkId), {
-      clickCount: increment(1),
-    });
+    const mappingSnap = await getDoc(doc(db, "usernames", username));
+    if (!mappingSnap.exists()) return null;
+    const uid = mappingSnap.data().uid as string;
+    return getProfile(uid);
   } catch (err) {
-    // 통계 누락은 사용자 흐름을 막지 않도록 조용히 로그만 남김
-    console.error("incrementLinkClick failed:", err);
+    console.error("getProfileByUsername failed:", err);
+    return null;
   }
 }
 
@@ -119,6 +86,22 @@ export async function setUsername(
     }
     console.error("setUsername failed:", err);
     return { ok: false, reason: "username 저장에 실패했어요." };
+  }
+}
+
+export type SetBioResult = { ok: true } | { ok: false; reason: string };
+
+export async function setBio(uid: string, bio: string): Promise<SetBioResult> {
+  const trimmed = bio.trim();
+  if (trimmed.length > BIO_MAX_LENGTH) {
+    return { ok: false, reason: `소개는 ${BIO_MAX_LENGTH}자 이하로 입력해주세요.` };
+  }
+  try {
+    await setDoc(doc(db, "users", uid), { bio: trimmed }, { merge: true });
+    return { ok: true };
+  } catch (err) {
+    console.error("setBio failed:", err);
+    return { ok: false, reason: "소개 저장에 실패했어요." };
   }
 }
 

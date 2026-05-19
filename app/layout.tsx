@@ -4,7 +4,6 @@ import Link from "next/link";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { AuthProvider } from "@/context/auth-context";
-import { LinkProvider } from "@/context/link-context";
 import { NavUserMenu } from "@/components/nav-user-menu";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
@@ -16,20 +15,20 @@ export const metadata: Metadata = {
     template: "%s · 박시언의 MyLink",
   },
   description:
-    "코드로 세상을 더 행복하게 만들고 싶은 학생, 박시언의 링크 모음.",
+    "코드로 세상을 더 행복하게 만들고 싶은 학생, 박시언의 페이지.",
   openGraph: {
     type: "website",
     locale: "ko_KR",
     siteName: "박시언의 MyLink",
     title: "박시언의 MyLink",
     description:
-      "코드로 세상을 더 행복하게 만들고 싶은 학생, 박시언의 링크 모음.",
+      "코드로 세상을 더 행복하게 만들고 싶은 학생, 박시언의 페이지.",
   },
   twitter: {
     card: "summary_large_image",
     title: "박시언의 MyLink",
     description:
-      "코드로 세상을 더 행복하게 만들고 싶은 학생, 박시언의 링크 모음.",
+      "코드로 세상을 더 행복하게 만들고 싶은 학생, 박시언의 페이지.",
   },
 };
 
@@ -57,13 +56,17 @@ export default function RootLayout({
                 >
                   관리
                 </Link>
+                <Link
+                  href="/profile"
+                  className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  프로필
+                </Link>
                 <NavUserMenu />
               </div>
             </div>
           </nav>
-          <LinkProvider>
-            <main>{children}</main>
-          </LinkProvider>
+          <main>{children}</main>
         </AuthProvider>
       </body>
     </html>
