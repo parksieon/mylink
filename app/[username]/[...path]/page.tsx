@@ -6,6 +6,7 @@ import { getProfileByUsername } from "@/lib/user";
 import { getNodeTreeByUsername, getNodeByPath, type Node } from "@/lib/nodes";
 import { PublicFolderView } from "@/components/PublicFolderView";
 import { LeafView } from "@/components/LeafView";
+import { isSafeHttpUrl } from "@/lib/url-safe";
 
 interface PageProps {
   params: Promise<{ username: string; path: string[] }>;
@@ -43,9 +44,13 @@ export default function NestedPage({ params }: PageProps) {
         return;
       }
 
-      // 외부 링크 → 클라 redirect
+      // 외부 링크 → 클라 redirect (http/https 만 허용 — javascript:·data: 차단)
       if (node.kind === "link" && node.url) {
-        window.location.replace(node.url);
+        if (isSafeHttpUrl(node.url)) {
+          window.location.replace(node.url);
+        } else {
+          setResult({ state: "not-found" });
+        }
         return;
       }
 

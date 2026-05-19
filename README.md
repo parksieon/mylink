@@ -6,7 +6,7 @@
 Google 계정으로 로그인해 본인만의 공개 URL(`/내_username`)을 만들고,
 배경 이미지·카드 아이콘·색상으로 개성 있게 꾸밀 수 있어요.
 
-🔗 **Live Demo**: [https://mylink-nine.vercel.app](https://mylink-nine.vercel.app)
+🔗 **Live Demo**: [https://timefilm.vercel.app](https://timefilm.vercel.app)
 
 ---
 

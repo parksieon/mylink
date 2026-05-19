@@ -31,6 +31,7 @@ import { useNodes } from "@/context/nodes-context";
 import type { Node } from "@/lib/nodes";
 import { uploadAsset } from "@/lib/assets";
 import { StyleControls } from "../StyleControls";
+import { isSafeHttpUrl } from "@/lib/url-safe";
 import { cn } from "@/lib/utils";
 
 const SAVE_DEBOUNCE_MS = 400;
@@ -50,7 +51,13 @@ export function ArticleEditor({ node }: ArticleEditorProps) {
     extensions: [
       StarterKit,
       Image,
-      Link.configure({ openOnClick: false, autolink: true }),
+      Link.configure({
+        openOnClick: false,
+        autolink: true,
+        protocols: ["http", "https", "mailto"],
+        validate: (href) => isSafeHttpUrl(href),
+        HTMLAttributes: { rel: "noopener noreferrer nofollow", target: "_blank" },
+      }),
       Youtube.configure({ controls: true, nocookie: true, width: 640, height: 360 }),
     ],
     content: (node.content as JSONContent) ?? "",
@@ -153,12 +160,32 @@ function Toolbar({ editor, uid, nodeId }: ToolbarProps) {
       editor.chain().focus().extendMarkRange("link").unsetLink().run();
       return;
     }
+    if (!isSafeHttpUrl(url)) {
+      alert("http:// 또는 https:// 주소만 사용할 수 있어요.");
+      return;
+    }
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
   };
 
   const handleYoutube = () => {
     const url = window.prompt("YouTube URL을 입력하세요", "https://");
     if (!url) return;
+    try {
+      const u = new URL(url);
+      const host = u.hostname.replace(/^www\./, "");
+      const ok =
+        host === "youtube.com" ||
+        host === "youtu.be" ||
+        host === "m.youtube.com" ||
+        host === "youtube-nocookie.com";
+      if (!ok) {
+        alert("YouTube 주소만 사용할 수 있어요.");
+        return;
+      }
+    } catch {
+      alert("올바른 YouTube 주소를 입력해주세요.");
+      return;
+    }
     editor.commands.setYoutubeVideo({ src: url });
   };
 

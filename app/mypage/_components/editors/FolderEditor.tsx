@@ -8,6 +8,7 @@ import { useNodes } from "@/context/nodes-context";
 import type { Node } from "@/lib/nodes";
 import { NodeCard } from "@/components/NodeCard";
 import { StyleControls } from "../StyleControls";
+import { isFirebaseStorageUrl } from "@/lib/url-safe";
 import { cn } from "@/lib/utils";
 
 interface FolderEditorProps {
@@ -102,7 +103,7 @@ export function FolderEditor({ node }: FolderEditorProps) {
           폴더 공개 페이지의 배경으로 사용돼요.
         </p>
         <div className="mt-3 flex items-center gap-3">
-          {node.bgImageURL ? (
+          {node.bgImageURL && isFirebaseStorageUrl(node.bgImageURL) ? (
             <div className="relative h-20 w-32 overflow-hidden rounded-lg ring-1 ring-border">
               <Image
                 src={node.bgImageURL}

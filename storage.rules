@@ -6,10 +6,14 @@ service firebase.storage {
   match /b/{bucket}/o {
     // 사용자별 파일 (leaf asset + 폴더 배경) — 본인만 100MB 이하 업로드
     match /users/{uid}/files/{nodeId}/{file=**} {
-      allow read: if true;
+      // 개별 파일 조회는 누구나 가능 (공개 페이지에서 토큰 URL로 접근)
+      allow get: if true;
+      // list 는 본인만 — 익명 사용자가 다른 사람 파일 구조 enumerate 차단
+      allow list: if request.auth != null && request.auth.uid == uid;
+      // 쓰기·삭제는 본인만, 100MB 이하
       allow write: if request.auth != null
         && request.auth.uid == uid
-        && request.resource.size < 100 * 1024 * 1024;
+        && (request.resource == null || request.resource.size < 100 * 1024 * 1024);
     }
   }
 }

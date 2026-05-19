@@ -9,7 +9,7 @@ import { NavUserMenu } from "@/components/nav-user-menu";
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://mylink.vercel.app"),
+  metadataBase: new URL("https://timefilm.vercel.app"),
   title: {
     default: "박시언의 TimeFilm",
     template: "%s · 박시언의 TimeFilm",

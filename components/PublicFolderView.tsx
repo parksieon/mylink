@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import type { Node } from "@/lib/nodes";
 import { NodeCard } from "@/components/NodeCard";
+import { isFirebaseStorageUrl } from "@/lib/url-safe";
 
 interface PublicFolderViewProps {
   username: string;
@@ -26,7 +27,10 @@ export function PublicFolderView({
   parentHref,
   hideOwnHeader,
 }: PublicFolderViewProps) {
-  const bgImage = folder?.bgImageURL;
+  const bgImage =
+    folder?.bgImageURL && isFirebaseStorageUrl(folder.bgImageURL)
+      ? folder.bgImageURL
+      : null;
 
   return (
     <div className="relative min-h-[calc(100vh-3rem)]">

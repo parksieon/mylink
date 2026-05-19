@@ -8,11 +8,62 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == uid;
     }
 
+    // 외부 링크 url 화이트리스트 — http(s) 만, javascript:·data: 등 차단
+    function isSafeHttpUrl(v) {
+      return v is string && v.matches('^https?://.+');
+    }
+
+    // 업로드 파일 URL 화이트리스트 — Firebase Storage 호스트만
+    function isFirebaseStorageUrl(v) {
+      return v is string && v.matches('^https://firebasestorage[.]googleapis[.]com/.+');
+    }
+
+    function affectedKeys() {
+      return request.resource.data.diff(resource.data).affectedKeys();
+    }
+
+    // url·fileURL·bgImageURL 변경 시 형식 강제
+    function nodeUrlFieldsOk() {
+      return (!affectedKeys().hasAny(['url']) || isSafeHttpUrl(request.resource.data.url))
+        && (!affectedKeys().hasAny(['fileURL']) ||
+            request.resource.data.fileURL == null ||
+            isFirebaseStorageUrl(request.resource.data.fileURL))
+        && (!affectedKeys().hasAny(['bgImageURL']) ||
+            request.resource.data.bgImageURL == null ||
+            isFirebaseStorageUrl(request.resource.data.bgImageURL));
+    }
+
+    function createNodeUrlFieldsOk() {
+      return (!('url' in request.resource.data) || isSafeHttpUrl(request.resource.data.url))
+        && (!('fileURL' in request.resource.data) ||
+            request.resource.data.fileURL == null ||
+            isFirebaseStorageUrl(request.resource.data.fileURL))
+        && (!('bgImageURL' in request.resource.data) ||
+            request.resource.data.bgImageURL == null ||
+            isFirebaseStorageUrl(request.resource.data.bgImageURL));
+    }
+
+    // username 형식 + 예약어 차단 (룰 단에서도 검증, 클라 정규식과 동일)
+    function isValidUsername(u) {
+      return u is string
+        && u.matches('^[a-z0-9][a-z0-9_-]{2,19}$')
+        && !(u in [
+          'admin', 'administrator', 'root', 'support', 'help',
+          'api', 'www', 'mail', 'about', 'home',
+          'signin', 'signup', 'login', 'logout', 'signout',
+          'settings', 'profile', 'mypage',
+          'user', 'users', 'me', 'system',
+          'timefilm', 'mylink'
+        ]);
+    }
+
     // usernames — 본인 uid 매칭된 문서만 생성/삭제, 수정 불가 (스쿼팅 방지)
     match /usernames/{username} {
       allow read: if true;
       allow create: if request.auth != null
-        && request.resource.data.uid == request.auth.uid;
+        && isValidUsername(username)
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['uid']);
       allow delete: if request.auth != null
         && resource.data.uid == request.auth.uid;
       allow update: if false;
@@ -35,12 +86,14 @@ service cloud.firestore {
 
         allow create: if isOwner(uid)
           && request.resource.data.depth >= 0
-          && request.resource.data.depth <= 3;
+          && request.resource.data.depth <= 3
+          && createNodeUrlFieldsOk();
 
         allow delete: if isOwner(uid);
 
-        // 본인 자유 수정 OR 익명/비로그인이 link의 clickCount만 +1
-        allow update: if isOwner(uid)
+        // 본인 자유 수정 (단 url·fileURL·bgImageURL 형식 강제)
+        // OR 익명/비로그인이 link의 clickCount만 +1
+        allow update: if (isOwner(uid) && nodeUrlFieldsOk())
           || (
             resource.data.kind == "link"
             && resource.data.effectiveVisibility == "public"
