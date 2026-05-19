@@ -15,7 +15,7 @@ const ThreeDViewer = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-[calc(100vh-220px)] w-full animate-pulse rounded-xl bg-foreground/5" />
+      <div className="h-[calc(100vh-3rem)] w-full animate-pulse bg-foreground/5" />
     ),
   }
 );
@@ -28,7 +28,7 @@ const ArticleViewer = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-[calc(100vh-220px)] w-full animate-pulse rounded-xl bg-foreground/5" />
+      <div className="h-[60vh] w-full animate-pulse rounded-2xl bg-foreground/5" />
     ),
   }
 );
@@ -40,24 +40,15 @@ interface LeafViewProps {
 
 export function LeafView({ leaf, parentHref }: LeafViewProps) {
   return (
-    <div className="mx-auto max-w-4xl px-6 pb-12 pt-8">
+    <div className="relative">
       <Link
         href={parentHref}
-        className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        className="fixed left-4 top-16 z-40 inline-flex items-center gap-1 rounded-full bg-background/85 px-3 py-1.5 text-sm text-muted-foreground shadow-sm ring-1 ring-border/60 backdrop-blur transition-colors hover:bg-background hover:text-foreground"
+        title="뒤로"
       >
         <ChevronLeft size={14} />
         뒤로
       </Link>
-      <header className="mb-6">
-        <p className="text-xs text-muted-foreground">
-          {leaf.path.length > 1
-            ? leaf.path.slice(0, -1).join(" / ")
-            : "최상위"}
-        </p>
-        <h1 className="mt-1 text-2xl font-bold tracking-tight text-foreground">
-          {leaf.name}
-        </h1>
-      </header>
 
       {renderContent(leaf)}
     </div>
@@ -65,20 +56,31 @@ export function LeafView({ leaf, parentHref }: LeafViewProps) {
 }
 
 function renderContent(leaf: Node) {
-  const tall = "h-[calc(100vh-220px)]";
-
+  // 문서는 글 가독성을 위해 max-w 유지하고 제목 + 본문 표시
   if (leaf.kind === "article") {
-    return <ArticleViewer content={leaf.content} />;
+    return (
+      <div className="mx-auto max-w-3xl px-8 pb-16 pt-20">
+        <h1 className="mb-6 text-3xl font-bold tracking-tight text-foreground">
+          {leaf.name}
+        </h1>
+        <ArticleViewer content={leaf.content} />
+      </div>
+    );
   }
 
   if (!leaf.fileURL) {
     return (
-      <div className="flex items-center gap-2 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900 ring-1 ring-amber-200/60 dark:bg-amber-950/30 dark:text-amber-200 dark:ring-amber-900/60">
-        <AlertTriangle size={14} className="shrink-0" />
-        <span>파일이 첨부되지 않았어요.</span>
+      <div className="mx-auto max-w-md px-6 pt-20">
+        <div className="flex items-center gap-2 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900 ring-1 ring-amber-200/60 dark:bg-amber-950/30 dark:text-amber-200 dark:ring-amber-900/60">
+          <AlertTriangle size={14} className="shrink-0" />
+          <span>파일이 첨부되지 않았어요.</span>
+        </div>
       </div>
     );
   }
+
+  // HTML / 3D / PDF — 화면 가득
+  const fullClass = "h-[calc(100vh-3rem)] w-full block";
 
   switch (leaf.kind) {
     case "html":
@@ -86,14 +88,14 @@ function renderContent(leaf: Node) {
         <HtmlSimViewer
           url={leaf.fileURL}
           title={leaf.name}
-          className={`${tall} w-full rounded-xl bg-white ring-1 ring-border/60`}
+          className={`${fullClass} border-0 bg-white`}
         />
       );
     case "3d":
       return (
         <ThreeDViewer
           url={leaf.fileURL}
-          className={`${tall} w-full overflow-hidden rounded-xl bg-foreground/[0.04] ring-1 ring-border/60`}
+          className={`${fullClass} overflow-hidden bg-foreground/[0.04]`}
         />
       );
     case "pdf":
@@ -101,7 +103,7 @@ function renderContent(leaf: Node) {
         <PdfViewer
           url={leaf.fileURL}
           title={leaf.name}
-          className={`${tall} w-full rounded-xl bg-white ring-1 ring-border/60`}
+          className={`${fullClass} border-0 bg-white`}
         />
       );
     default:
