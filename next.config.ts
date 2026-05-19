@@ -9,6 +9,7 @@ const csp = [
     isDev ? "'unsafe-eval'" : "",
     "https://apis.google.com",
     "https://accounts.google.com",
+    "https://www.gstatic.com",
   ]
     .filter(Boolean)
     .join(" "),
