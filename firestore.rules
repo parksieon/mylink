@@ -69,6 +69,30 @@ service cloud.firestore {
       allow update: if false;
     }
 
+    // 글로벌 venue 캐시 (Interpark 공연장 layout) — Admin SDK만 write
+    match /venues/{placeCode} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // 공연(취소표 모니터) — 전역 공유. Admin SDK만 write
+    match /concerts/{cid} {
+      allow read: if request.auth != null;
+      allow write: if false;
+
+      // 구독자 — 본인 uid 매칭된 문서만 self-write
+      match /subscribers/{uid} {
+        allow read: if request.auth != null;
+        allow write: if request.auth != null && request.auth.uid == uid;
+      }
+
+      // 알림 이력 — read-only (Admin SDK가 write)
+      match /alerts/{aid} {
+        allow read: if request.auth != null;
+        allow write: if false;
+      }
+    }
+
     match /users/{uid} {
       allow read: if true;
 

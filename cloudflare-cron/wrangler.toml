@@ -1,0 +1,14 @@
+name = "timefilm-ticket-cron"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+[triggers]
+crons = ["*/1 * * * *"]
+
+[vars]
+# 본인 Vercel 도메인으로 교체. https:// 포함, 끝에 슬래시 없이.
+VERCEL_URL = "https://timefilm.vercel.app"
+
+# CRON_SECRET 은 secret 으로 등록:
+#   wrangler secret put CRON_SECRET
+# Vercel 의 동일 env var 와 값이 일치해야 함.

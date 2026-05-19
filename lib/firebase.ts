@@ -34,3 +34,4 @@ export const db = _db;
 export const auth = getAuth(app);
 export const storage = getStorage(app);
 export const googleProvider = new GoogleAuthProvider();
+export const firebaseApp = app;
