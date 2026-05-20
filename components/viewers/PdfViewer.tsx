@@ -17,8 +17,9 @@ export function PdfViewer({ url, className, title }: PdfViewerProps) {
     <iframe
       src={url}
       title={title ?? "PDF"}
-      // 동일 오리진 PDF여도 추가 격리 — 파일 자체에 악성 JS가 있어도 부모 컨텍스트 접근 차단
-      sandbox="allow-scripts allow-same-origin allow-downloads"
+      // sandbox 는 의도적으로 미적용 — Chrome 이 sandbox iframe 안의 cross-origin PDF 를
+      // "차단한 페이지" 로 가리는 케이스가 있어서. URL 자체는 isFirebaseStorageUrl 로
+      // 이미 검증됐고, Chrome PDF viewer 가 PDF 내부 JS 실행을 자체 차단함.
       referrerPolicy="no-referrer"
       className={
         className ??
