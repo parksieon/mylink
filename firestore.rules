@@ -93,6 +93,13 @@ service cloud.firestore {
       }
     }
 
+    // /tickets 대시보드가 collectionGroup('subscribers') + where('uid' == 본인) 쿼리로
+    // 본인이 구독한 모든 공연을 가져오는 경로. 위의 nested rule 만으론 collection group
+    // 쿼리가 차단되므로 path wildcard 매처를 명시.
+    match /{path=**}/subscribers/{uid} {
+      allow read: if request.auth != null;
+    }
+
     match /users/{uid} {
       allow read: if true;
 

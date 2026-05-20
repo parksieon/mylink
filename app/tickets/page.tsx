@@ -50,28 +50,36 @@ export default function TicketsDashboard() {
     const db = getFirestore(firebaseApp);
     const q = query(collectionGroup(db, 'subscribers'), where('uid', '==', user.uid));
 
-    const unsub = onSnapshot(q, async snap => {
-      const fetched = await Promise.all(
-        snap.docs.map(async s => {
-          const sub = s.data() as SubscriberDoc;
-          const concertRef = s.ref.parent.parent!; // concerts/{goodsCode}
-          const cSnap = await getDoc(concertRef);
-          if (!cSnap.exists()) return null;
-          const c = cSnap.data() as ConcertDoc;
-          return {
-            goodsCode: c.goodsCode,
-            name: c.name,
-            enabled: sub.enabled,
-            myBlocks: (sub.blocks ?? []).length,
-            totalAvail: c.state?.totalAvail ?? 0,
-            totalSeats: c.state?.totalSeats ?? 0,
-            updatedAt: c.state?.updatedAt?.toDate?.() ?? null,
-          } satisfies Row;
-        })
-      );
-      setRows(fetched.filter((r): r is Row => r !== null));
-      setLoading(false);
-    });
+    const unsub = onSnapshot(
+      q,
+      async snap => {
+        const fetched = await Promise.all(
+          snap.docs.map(async s => {
+            const sub = s.data() as SubscriberDoc;
+            const concertRef = s.ref.parent.parent!; // concerts/{goodsCode}
+            const cSnap = await getDoc(concertRef);
+            if (!cSnap.exists()) return null;
+            const c = cSnap.data() as ConcertDoc;
+            return {
+              goodsCode: c.goodsCode,
+              name: c.name,
+              enabled: sub.enabled,
+              myBlocks: (sub.blocks ?? []).length,
+              totalAvail: c.state?.totalAvail ?? 0,
+              totalSeats: c.state?.totalSeats ?? 0,
+              updatedAt: c.state?.updatedAt?.toDate?.() ?? null,
+            } satisfies Row;
+          })
+        );
+        setRows(fetched.filter((r): r is Row => r !== null));
+        setLoading(false);
+      },
+      err => {
+        // Firestore collection group 쿼리 실패 (인덱스 미생성 또는 룰 차단) 시 silent fail 방지.
+        console.error('[tickets] subscriber query failed:', err);
+        setLoading(false);
+      }
+    );
 
     return unsub;
   }, [user]);
