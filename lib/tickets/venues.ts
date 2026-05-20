@@ -73,7 +73,9 @@ const IBK_CHAMBER: VenuePreset = {
 // 부천아트센터 콘서트홀 (placeCode 24001584, 1445석)
 // 2024년 개관, 클래식 전용 슈박스형, 부천필 본거지
 // 26개 블록 (1F 메인 6 + 2F 정면 3 + 2F 사이드/합창 5 + 3F 5 + 박스 7)
-const BUCHEON_CONCERT: VenuePreset = {
+// ⚠ 2026-05-20 비활성화 — 인터파크 waiting queue + 세션 토큰 정책으로 비회원 cron 폴링 불가.
+// 정책 풀리면 VENUE_PRESETS 의 BUCHEON_CONCERT: null 을 _BUCHEON_CONCERT 로 복원.
+const _BUCHEON_CONCERT: VenuePreset = {
   template: 'BUCHEON_CONCERT',
   name: '부천아트센터 콘서트홀',
   placeCode: '24001584',
@@ -185,7 +187,9 @@ const LOTTE_CONCERT: VenuePreset = {
 export const VENUE_PRESETS: Record<VenueTemplate, VenuePreset | null> = {
   SAC_CONCERT,
   IBK_CHAMBER,
-  BUCHEON_CONCERT,
+  // BUCHEON_CONCERT: 인터파크 waiting queue + 세션 토큰 정책으로 비회원 cron 폴링 불가 (2026-05-20 확인) → 비활성.
+  // 복원 시 위의 _BUCHEON_CONCERT 변수명에서 _ 떼고 여기 BUCHEON_CONCERT 로 복귀.
+  BUCHEON_CONCERT: null,
   LOTTE_CONCERT,
   CUSTOM: null,
 };

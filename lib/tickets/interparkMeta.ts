@@ -11,8 +11,9 @@ const SUMMARY_BASE = 'https://api-ticketfront.interpark.com/v1/goods';
 const PLACE_CODE_TO_TEMPLATE: Record<string, VenueTemplate> = {
   '25001214': 'SAC_CONCERT',
   '17000515': 'IBK_CHAMBER',
-  '24001584': 'BUCHEON_CONCERT',
   '25001205': 'LOTTE_CONCERT',
+  // 부천아트센터(24001584)는 인터파크 waiting queue + 세션 토큰 필요로 변경되어 비회원 cron 으로 좌석 조회 불가.
+  // 등록은 가능하나 폴링이 항상 0/0 으로 떠서 사용자 혼동 유발 → preset 매핑 제거로 등록 단계에서 차단.
 };
 
 /** Extract goodsCode from a full Interpark URL or a bare code. Returns null if not parseable. */
