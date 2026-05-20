@@ -14,6 +14,9 @@ export default function TicketsLayout({ children }: { children: ReactNode }) {
         <p className="text-sm text-gray-600 mt-1">
           Interpark 공연 좌석을 1분마다 체크 → 취소표 발생 시 브라우저 푸시 알림
         </p>
+        <p className="text-xs text-gray-500 mt-2">
+          지원 공연장: 예술의전당 콘서트홀 · IBK챔버홀 · 롯데콘서트홀
+        </p>
       </header>
       {children}
     </div>
