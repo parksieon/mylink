@@ -55,8 +55,8 @@ export default function TicketsDashboard() {
     const unsub = onSnapshot(
       q,
       async snap => {
-        const fetched = await Promise.all(
-          snap.docs.map(async s => {
+        const fetched: (Row | null)[] = await Promise.all(
+          snap.docs.map(async (s): Promise<Row | null> => {
             const sub = s.data() as SubscriberDoc;
             const concertRef = s.ref.parent.parent!; // concerts/{goodsCode}
             const cSnap = await getDoc(concertRef);
@@ -72,7 +72,7 @@ export default function TicketsDashboard() {
               updatedAt: c.state?.updatedAt?.toDate?.() ?? null,
               playStartDate: c.playStartDate,
               playEndDate: c.playEndDate,
-            } satisfies Row;
+            };
           })
         );
         setRows(fetched.filter((r): r is Row => r !== null));
