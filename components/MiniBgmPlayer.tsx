@@ -3,15 +3,19 @@
 /**
  * 공개 프로필 페이지 헤더(bio 아래)에 인라인으로 들어가는 BGM 카드.
  *
- * UI: [음반 아이콘]  곡 제목  [▶/⏸]
+ * UI: [음반 아이콘]  곡 제목  [🔊 ━━○━] [▶/⏸]
  * - 곡 제목은 YouTube oEmbed (https://www.youtube.com/oembed) 로 자동 조회 — CSP connect-src 에 추가됨
  * - 재생은 hidden iframe(0×0) + postMessage 로 제어 (의존성 0)
  * - 자동재생은 브라우저 정책상 막혀있어 사용자가 ▶ 한 번 눌러야 시작
+ * - 볼륨은 localStorage 에 저장되어 새로고침·다른 페이지에서도 유지
  */
 
 import { useEffect, useRef, useState } from "react";
-import { Disc3, Pause, Play } from "lucide-react";
+import { Disc3, Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { extractYoutubeVideoId } from "@/lib/youtube";
+
+const VOLUME_STORAGE_KEY = "mylink_bgm_volume";
+const DEFAULT_VOLUME = 40;
 
 interface Props {
   url: string;
@@ -22,6 +26,33 @@ export function MiniBgmPlayer({ url }: Props) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [playing, setPlaying] = useState(false);
   const [title, setTitle] = useState<string | null>(null);
+  const [volume, setVolume] = useState<number>(DEFAULT_VOLUME);
+
+  // localStorage 에서 저장된 볼륨 불러오기 (마운트 한 번만)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = window.localStorage.getItem(VOLUME_STORAGE_KEY);
+    if (stored == null) return;
+    const v = parseInt(stored, 10);
+    if (!Number.isNaN(v) && v >= 0 && v <= 100) setVolume(v);
+  }, []);
+
+  // volume state 변경 시 iframe 에 setVolume 전송
+  useEffect(() => {
+    iframeRef.current?.contentWindow?.postMessage(
+      JSON.stringify({ event: "command", func: "setVolume", args: [volume] }),
+      "*"
+    );
+  }, [volume]);
+
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = parseInt(e.target.value, 10);
+    if (Number.isNaN(v)) return;
+    setVolume(v);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(VOLUME_STORAGE_KEY, String(v));
+    }
+  };
 
   // oEmbed 로 곡 제목 조회 — 실패해도 카드는 표시되고 fallback 텍스트로 대체
   useEffect(() => {
@@ -67,6 +98,13 @@ export function MiniBgmPlayer({ url }: Props) {
   if (!videoId) return null;
 
   const toggle = () => {
+    // 첫 재생 직전에 현재 볼륨을 한번 더 보내서 player ready 이후 확실히 적용되게.
+    if (!playing) {
+      iframeRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: "command", func: "setVolume", args: [volume] }),
+        "*"
+      );
+    }
     const func = playing ? "pauseVideo" : "playVideo";
     iframeRef.current?.contentWindow?.postMessage(
       JSON.stringify({ event: "command", func, args: [] }),
@@ -106,11 +144,30 @@ export function MiniBgmPlayer({ url }: Props) {
           aria-hidden="true"
         />
         <span
-          className="min-w-0 max-w-[200px] truncate text-[13px] text-foreground/80 sm:max-w-[280px]"
+          className="min-w-0 max-w-[150px] truncate text-[13px] text-foreground/80 sm:max-w-[220px]"
           title={title ?? "배경 음악"}
         >
           {title ?? "배경 음악"}
         </span>
+
+        {/* 볼륨 */}
+        <div className="flex shrink-0 items-center gap-1.5">
+          {volume === 0 ? (
+            <VolumeX size={14} strokeWidth={1.8} className="text-foreground/50" aria-hidden="true" />
+          ) : (
+            <Volume2 size={14} strokeWidth={1.8} className="text-foreground/70" aria-hidden="true" />
+          )}
+          <input
+            type="range"
+            min={0}
+            max={100}
+            value={volume}
+            onChange={handleVolumeChange}
+            aria-label="볼륨"
+            className="h-1 w-14 cursor-pointer accent-foreground sm:w-20"
+          />
+        </div>
+
         <button
           type="button"
           onClick={toggle}
