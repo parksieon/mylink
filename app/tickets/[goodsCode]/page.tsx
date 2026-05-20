@@ -15,6 +15,20 @@ type TestResult = {
   blocks: { code: string; label: string; avail: number; total: number }[];
 };
 
+function fmtDate(yyyymmdd?: string): string | null {
+  if (!yyyymmdd || !/^\d{8}$/.test(yyyymmdd)) return null;
+  return `${yyyymmdd.slice(0, 4)}-${yyyymmdd.slice(4, 6)}-${yyyymmdd.slice(6, 8)}`;
+}
+
+function todayYYYYMMDD_KST(): string {
+  const kst = new Date(Date.now() + 9 * 60 * 60 * 1000);
+  return (
+    kst.getUTCFullYear().toString() +
+    String(kst.getUTCMonth() + 1).padStart(2, '0') +
+    String(kst.getUTCDate()).padStart(2, '0')
+  );
+}
+
 export default function ConcertDetailPage({ params }: { params: Promise<{ goodsCode: string }> }) {
   const { goodsCode } = use(params);
   const [concert, setConcert] = useState<ConcertDoc | null>(null);
@@ -52,13 +66,29 @@ export default function ConcertDetailPage({ params }: { params: Promise<{ goodsC
 
   const state = concert.state;
 
+  const startStr = fmtDate(concert.playStartDate);
+  const endStr = fmtDate(concert.playEndDate);
+  const dateLabel =
+    startStr && endStr && startStr !== endStr
+      ? `${startStr} ~ ${endStr}`
+      : startStr ?? endStr ?? null;
+  const expired = !!concert.playEndDate && concert.playEndDate < todayYYYYMMDD_KST();
+
   return (
     <div className="space-y-6">
       <section>
-        <h2 className="text-xl font-semibold">{concert.name}</h2>
+        <h2 className="text-xl font-semibold">
+          {concert.name}
+          {expired && <span className="ml-2 text-xs font-normal text-gray-500">· 종료된 공연</span>}
+        </h2>
         <div className="text-sm text-gray-500 font-mono">
           goodsCode {concert.goodsCode} · placeCode {concert.placeCode}
         </div>
+        {dateLabel && (
+          <div className={`text-sm mt-1 ${expired ? 'text-gray-400' : 'text-gray-600'}`}>
+            공연일: {dateLabel}
+          </div>
+        )}
         <div className="text-sm mt-2">
           현재 가능: <span className="font-semibold text-red-600">{state?.totalAvail ?? 0}</span>
           {' / '}

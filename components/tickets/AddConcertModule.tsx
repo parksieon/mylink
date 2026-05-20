@@ -103,6 +103,8 @@ export function AddConcertModule() {
           venueTemplate: data.meta.venueTemplate,
           name: data.meta.goodsName,
           blocks,
+          playStartDate: data.meta.playStartDate || undefined,
+          playEndDate: data.meta.playEndDate || undefined,
         }),
       });
       if (!res.ok) throw new Error(await res.text());

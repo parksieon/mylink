@@ -25,6 +25,8 @@ type Body = {
   venueTemplate: VenueTemplate;
   name: string;
   blocks: BlockSpec[];
+  playStartDate?: string;  // YYYYMMDD (인터파크 summary 형식)
+  playEndDate?: string;
 };
 
 function validate(body: Body): string | null {
@@ -34,6 +36,8 @@ function validate(body: Body): string | null {
   if (!body.name || body.name.length > 100) return 'invalid name';
   if (!Array.isArray(body.blocks) || body.blocks.length === 0) return 'no blocks selected';
   if (body.blocks.length > 100) return 'too many blocks';
+  if (body.playStartDate && !/^\d{8}$/.test(body.playStartDate)) return 'invalid playStartDate';
+  if (body.playEndDate && !/^\d{8}$/.test(body.playEndDate)) return 'invalid playEndDate';
   return null;
 }
 
@@ -77,17 +81,23 @@ export async function POST(req: Request) {
         createdBy: uid,
         createdAt: now,
         updatedAt: now,
+        ...(body.playStartDate ? { playStartDate: body.playStartDate } : {}),
+        ...(body.playEndDate ? { playEndDate: body.playEndDate } : {}),
       };
       tx.set(concertRef, doc);
     } else {
       const existing = concertSnap.data() as ConcertDoc;
       const merged = unionBlocks(existing.blocks ?? [], body.blocks);
-      tx.update(concertRef, {
+      const update: Record<string, unknown> = {
         blocks: merged,
         enabled: true,
         subscriberCount: subSnap.exists ? existing.subscriberCount : (existing.subscriberCount ?? 0) + 1,
         updatedAt: now,
-      });
+      };
+      // 기존 공연 doc 에 일자가 없으면 backfill (마이그레이션)
+      if (body.playStartDate && !existing.playStartDate) update.playStartDate = body.playStartDate;
+      if (body.playEndDate && !existing.playEndDate) update.playEndDate = body.playEndDate;
+      tx.update(concertRef, update);
     }
 
     const subDoc: SubscriberDoc = {

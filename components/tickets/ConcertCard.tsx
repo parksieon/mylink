@@ -15,8 +15,24 @@ type Props = {
   totalAvail: number;
   totalSeats: number;
   updatedAt: Date | null;
+  playStartDate?: string;       // YYYYMMDD
+  playEndDate?: string;
   onChanged?: () => void;
 };
+
+function fmtDate(yyyymmdd?: string): string | null {
+  if (!yyyymmdd || !/^\d{8}$/.test(yyyymmdd)) return null;
+  return `${yyyymmdd.slice(0, 4)}-${yyyymmdd.slice(4, 6)}-${yyyymmdd.slice(6, 8)}`;
+}
+
+function todayYYYYMMDD_KST(): string {
+  const kst = new Date(Date.now() + 9 * 60 * 60 * 1000);
+  return (
+    kst.getUTCFullYear().toString() +
+    String(kst.getUTCMonth() + 1).padStart(2, '0') +
+    String(kst.getUTCDate()).padStart(2, '0')
+  );
+}
 
 export function ConcertCard({
   goodsCode,
@@ -26,10 +42,20 @@ export function ConcertCard({
   totalAvail,
   totalSeats,
   updatedAt,
+  playStartDate,
+  playEndDate,
   onChanged,
 }: Props) {
   const [busy, setBusy] = useState(false);
   const [enabled, setEnabled] = useState(subscriberEnabled);
+
+  const startStr = fmtDate(playStartDate);
+  const endStr = fmtDate(playEndDate);
+  const dateLabel =
+    startStr && endStr && startStr !== endStr
+      ? `${startStr} ~ ${endStr}`
+      : startStr ?? endStr ?? null;
+  const expired = !!playEndDate && playEndDate < todayYYYYMMDD_KST();
 
   async function toggle() {
     setBusy(true);
@@ -63,24 +89,29 @@ export function ConcertCard({
   }
 
   return (
-    <div className="border rounded-lg p-4 bg-white shadow-sm">
+    <div className={`border rounded-lg p-4 bg-white shadow-sm ${expired ? 'opacity-60' : ''}`}>
       <div className="flex items-start justify-between gap-3">
         <div>
           <Link href={`/tickets/${goodsCode}`} className="font-semibold hover:underline">
             {name}
           </Link>
           <div className="text-xs text-gray-500 font-mono">{goodsCode}</div>
+          {dateLabel && (
+            <div className={`text-xs mt-0.5 ${expired ? 'text-gray-400' : 'text-gray-600'}`}>
+              {dateLabel}{expired && ' · 종료'}
+            </div>
+          )}
         </div>
         <label className="flex items-center gap-1 text-sm cursor-pointer">
           <input
             type="checkbox"
             checked={enabled}
             onChange={toggle}
-            disabled={busy}
+            disabled={busy || expired}
             className="accent-blue-600"
           />
-          <span className={enabled ? 'text-blue-600' : 'text-gray-400'}>
-            {enabled ? '알림 ON' : 'OFF'}
+          <span className={enabled && !expired ? 'text-blue-600' : 'text-gray-400'}>
+            {expired ? '종료' : enabled ? '알림 ON' : 'OFF'}
           </span>
         </label>
       </div>

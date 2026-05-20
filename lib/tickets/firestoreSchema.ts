@@ -38,6 +38,9 @@ export type ConcertDoc = {
   createdBy: string;                    // uid
   createdAt: Timestamp;
   updatedAt: Timestamp;
+  // YYYYMMDD — 인터파크 summary 가 주는 형식 그대로. 기존 등록 공연은 없을 수 있어 optional.
+  playStartDate?: string;
+  playEndDate?: string;
 };
 
 export type SubscriberDoc = {

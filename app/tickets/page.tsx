@@ -29,6 +29,8 @@ type Row = {
   totalAvail: number;
   totalSeats: number;
   updatedAt: Date | null;
+  playStartDate?: string;
+  playEndDate?: string;
 };
 
 export default function TicketsDashboard() {
@@ -68,6 +70,8 @@ export default function TicketsDashboard() {
               totalAvail: c.state?.totalAvail ?? 0,
               totalSeats: c.state?.totalSeats ?? 0,
               updatedAt: c.state?.updatedAt?.toDate?.() ?? null,
+              playStartDate: c.playStartDate,
+              playEndDate: c.playEndDate,
             } satisfies Row;
           })
         );
@@ -126,6 +130,8 @@ export default function TicketsDashboard() {
                 totalAvail={r.totalAvail}
                 totalSeats={r.totalSeats}
                 updatedAt={r.updatedAt}
+                playStartDate={r.playStartDate}
+                playEndDate={r.playEndDate}
               />
             ))}
           </div>
