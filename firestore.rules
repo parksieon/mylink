@@ -18,6 +18,13 @@ service cloud.firestore {
       return v is string && v.matches('^https://firebasestorage[.]googleapis[.]com/.+');
     }
 
+    // BGM URL 화이트리스트 — YouTube 도메인만 (또는 빈 문자열로 BGM 해제)
+    function isYoutubeOrEmpty(v) {
+      return v is string && (v == '' ||
+        v.matches('^https?://(www[.]|m[.]|music[.])?youtube[.]com/.+') ||
+        v.matches('^https?://youtu[.]be/.+'));
+    }
+
     function affectedKeys() {
       return request.resource.data.diff(resource.data).affectedKeys();
     }
@@ -105,10 +112,13 @@ service cloud.firestore {
 
       // 프로필 본문 — 본인만. quotaBytes는 콘솔에서만 수정 가능.
       // 알려진 한계: 본인이 usedBytes를 임의로 0으로 리셋해서 quota 우회 가능 (학기 프로젝트 용인).
-      allow create: if isOwner(uid);
+      allow create: if isOwner(uid)
+        && (!('bgmYoutubeUrl' in request.resource.data) || isYoutubeOrEmpty(request.resource.data.bgmYoutubeUrl));
       allow update: if isOwner(uid)
         && !request.resource.data.diff(resource.data).affectedKeys()
-             .hasAny(['quotaBytes']);
+             .hasAny(['quotaBytes'])
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['bgmYoutubeUrl'])
+            || isYoutubeOrEmpty(request.resource.data.bgmYoutubeUrl));
 
       // 통합 노드 컬렉션 (folder | article | link | html | 3d | pdf)
       match /nodes/{nodeId} {

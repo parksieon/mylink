@@ -9,6 +9,7 @@ import {
 } from "@/lib/user";
 import { getNodeTreeByUsername, type Node } from "@/lib/nodes";
 import { PublicFolderView } from "@/components/PublicFolderView";
+import { MiniBgmPlayer } from "@/components/MiniBgmPlayer";
 
 interface PageProps {
   params: Promise<{ username: string }>;
@@ -72,6 +73,7 @@ export default function UsernamePage({ params }: PageProps) {
         basePath={`/${username}`}
         hideOwnHeader
       />
+      {profile.bgmYoutubeUrl && <MiniBgmPlayer url={profile.bgmYoutubeUrl} />}
     </div>
   );
 }

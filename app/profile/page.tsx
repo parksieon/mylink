@@ -9,6 +9,7 @@ import {
   getProfile,
   setUsername,
   setBio,
+  setBgmYoutubeUrl,
   BIO_MAX_LENGTH,
 } from "@/lib/user";
 
@@ -30,6 +31,11 @@ export default function ProfilePage() {
   const [bioStatus, setBioStatus] = useState<Status | null>(null);
   const [bioSaving, setBioSaving] = useState(false);
 
+  const [savedBgm, setSavedBgm] = useState<string>("");
+  const [bgmInput, setBgmInput] = useState<string>("");
+  const [bgmStatus, setBgmStatus] = useState<Status | null>(null);
+  const [bgmSaving, setBgmSaving] = useState(false);
+
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
@@ -42,6 +48,9 @@ export default function ProfilePage() {
       const b = profile?.bio ?? "";
       setSavedBio(b);
       setBioInput(b);
+      const g = profile?.bgmYoutubeUrl ?? "";
+      setSavedBgm(g);
+      setBgmInput(g);
     })();
     return () => {
       cancelled = true;
@@ -76,6 +85,25 @@ export default function ProfilePage() {
     }
     setSavedBio(bioInput.trim());
     setBioStatus({ kind: "ok", message: "저장됐어요!" });
+  };
+
+  const handleBgmSave = async () => {
+    if (!user) return;
+    setBgmSaving(true);
+    setBgmStatus(null);
+    const result = await setBgmYoutubeUrl(user.uid, bgmInput);
+    setBgmSaving(false);
+    if (!result.ok) {
+      setBgmStatus({ kind: "error", message: result.reason });
+      return;
+    }
+    const trimmed = bgmInput.trim();
+    setSavedBgm(trimmed);
+    setBgmInput(trimmed);
+    setBgmStatus({
+      kind: "ok",
+      message: trimmed ? "저장됐어요!" : "BGM 을 해제했어요.",
+    });
   };
 
   if (authLoading) return null;
@@ -219,6 +247,55 @@ export default function ProfilePage() {
             {bioStatus.message}
           </p>
         )}
+      </section>
+
+      {/* BGM */}
+      <section className="mb-12 rounded-2xl bg-card p-6 ring-1 ring-border/60 sm:p-8">
+        <h2 className="text-lg font-semibold tracking-tight text-foreground">
+          배경 음악
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          공개 페이지(<span className="font-mono">/내_username</span>) 방문자에게
+          작은 플레이어로 표시돼요. YouTube 영상 URL 을 붙여넣으세요. 비워두면 해제.
+        </p>
+        <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+          <Input
+            value={bgmInput}
+            onChange={(e) => {
+              setBgmInput(e.target.value);
+              if (bgmStatus) setBgmStatus(null);
+            }}
+            placeholder="https://www.youtube.com/watch?v=..."
+            className="flex-1"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+          />
+          <Button
+            type="button"
+            onClick={handleBgmSave}
+            disabled={bgmSaving || bgmInput.trim() === savedBgm}
+            className="cursor-pointer"
+          >
+            {bgmSaving ? "저장 중..." : savedBgm ? "변경" : "설정"}
+          </Button>
+        </div>
+        {bgmStatus && (
+          <p
+            className={
+              "mt-2 text-[13px] " +
+              (bgmStatus.kind === "ok"
+                ? "text-emerald-600"
+                : "text-destructive")
+            }
+          >
+            {bgmStatus.message}
+          </p>
+        )}
+        <p className="mt-3 text-[11px] text-muted-foreground">
+          ⚠ 자동재생은 브라우저 정책상 막혀있어서, 방문자가 페이지에서 ▶ 버튼을
+          한 번 눌러야 재생돼요.
+        </p>
       </section>
 
       <Link

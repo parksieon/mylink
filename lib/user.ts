@@ -5,6 +5,7 @@ import {
   runTransaction,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { isValidYoutubeUrl } from "@/lib/youtube";
 
 export interface UserProfile {
   uid: string;
@@ -12,6 +13,7 @@ export interface UserProfile {
   photoURL?: string;
   username?: string;
   bio?: string;
+  bgmYoutubeUrl?: string;
 }
 
 export const BIO_MAX_LENGTH = 300;
@@ -102,6 +104,29 @@ export async function setBio(uid: string, bio: string): Promise<SetBioResult> {
   } catch (err) {
     console.error("setBio failed:", err);
     return { ok: false, reason: "소개 저장에 실패했어요." };
+  }
+}
+
+export type SetBgmUrlResult = { ok: true } | { ok: false; reason: string };
+
+export async function setBgmYoutubeUrl(
+  uid: string,
+  url: string
+): Promise<SetBgmUrlResult> {
+  const trimmed = url.trim();
+  // 빈 문자열은 BGM 제거로 취급
+  if (trimmed && !isValidYoutubeUrl(trimmed)) {
+    return {
+      ok: false,
+      reason: "YouTube 영상 URL을 입력해 주세요. (youtube.com/watch, youtu.be 등)",
+    };
+  }
+  try {
+    await setDoc(doc(db, "users", uid), { bgmYoutubeUrl: trimmed }, { merge: true });
+    return { ok: true };
+  } catch (err) {
+    console.error("setBgmYoutubeUrl failed:", err);
+    return { ok: false, reason: "BGM URL 저장에 실패했어요." };
   }
 }
 
