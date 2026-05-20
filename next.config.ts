@@ -25,6 +25,7 @@ const csp = [
     "https://securetoken.googleapis.com",
     "https://firestore.googleapis.com",
     "https://firebasestorage.googleapis.com",
+    "https://www.youtube.com",
     isDev ? "ws://localhost:*" : "",
     isDev ? "http://localhost:*" : "",
   ]

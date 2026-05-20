@@ -73,7 +73,6 @@ export default function UsernamePage({ params }: PageProps) {
         basePath={`/${username}`}
         hideOwnHeader
       />
-      {profile.bgmYoutubeUrl && <MiniBgmPlayer url={profile.bgmYoutubeUrl} />}
     </div>
   );
 }
@@ -117,6 +116,7 @@ function ProfileHeader({
           {profile.bio}
         </p>
       )}
+      {profile.bgmYoutubeUrl && <MiniBgmPlayer url={profile.bgmYoutubeUrl} />}
     </header>
   );
 }
