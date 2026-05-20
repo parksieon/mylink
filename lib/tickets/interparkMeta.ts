@@ -12,6 +12,7 @@ const PLACE_CODE_TO_TEMPLATE: Record<string, VenueTemplate> = {
   '25001214': 'SAC_CONCERT',
   '17000515': 'IBK_CHAMBER',
   '24001584': 'BUCHEON_CONCERT',
+  '25001205': 'LOTTE_CONCERT',
 };
 
 /** Extract goodsCode from a full Interpark URL or a bare code. Returns null if not parseable. */

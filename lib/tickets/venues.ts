@@ -133,10 +133,60 @@ const BUCHEON_CONCERT: VenuePreset = {
   ],
 };
 
+// 롯데콘서트홀 (placeCode 25001205, 1444석)
+// 좌석 layout 은 인터파크의 좌석배치도 SVG 좌표를 분석해 그룹·라벨을 추정 (2026-05-20 수집).
+// floor·zone 라벨은 추정치 — 실제 사용 중 mismatch 발견되면 수정.
+const LOTTE_CONCERT: VenuePreset = {
+  template: 'LOTTE_CONCERT',
+  name: '롯데콘서트홀',
+  placeCode: '25001205',
+  playSeq: '001',
+  groups: [
+    {
+      title: '합창석 (무대 뒤편)',
+      blocks: [
+        { code: '018', label: '합창석 (167석)', grade: '', floor: '무대뒤' },
+      ],
+    },
+    {
+      title: '1F 사이드·BOX',
+      blocks: [
+        { code: '007', label: '1F 좌측 상단 (151석)', grade: '', floor: '1F' },
+        { code: '009', label: '1F 우측 상단 (151석)', grade: '', floor: '1F' },
+        { code: '016', label: '1F 좌측 측면 (61석)', grade: '', floor: '1F' },
+        { code: '017', label: '1F 우측 측면 (61석)', grade: '', floor: '1F' },
+        { code: '008', label: '1F 좌측 안쪽 (90석)', grade: '', floor: '1F' },
+        { code: '010', label: '1F 우측 안쪽 (90석)', grade: '', floor: '1F' },
+      ],
+    },
+    {
+      title: '1F 메인 객석',
+      blocks: [
+        { code: '001', label: '1F 좌측 끝 (35석)', grade: '', floor: '1F' },
+        { code: '002', label: '1F 좌중앙 (31석)', grade: '', floor: '1F' },
+        { code: '003', label: '1F 중앙 (93석)', grade: '', floor: '1F' },
+        { code: '004', label: '1F 우중앙 (31석)', grade: '', floor: '1F' },
+        { code: '005', label: '1F 우측 끝 (35석)', grade: '', floor: '1F' },
+      ],
+    },
+    {
+      title: '2F·3F 후방',
+      blocks: [
+        { code: '011', label: '후방 좌측 끝 (12석)', grade: '', floor: '2F' },
+        { code: '012', label: '후방 좌중앙 (15석)', grade: '', floor: '2F' },
+        { code: '013', label: '후방 중앙 (41석)', grade: '', floor: '2F' },
+        { code: '014', label: '후방 우중앙 (15석)', grade: '', floor: '2F' },
+        { code: '015', label: '후방 우측 끝 (12석)', grade: '', floor: '2F' },
+      ],
+    },
+  ],
+};
+
 export const VENUE_PRESETS: Record<VenueTemplate, VenuePreset | null> = {
   SAC_CONCERT,
   IBK_CHAMBER,
   BUCHEON_CONCERT,
+  LOTTE_CONCERT,
   CUSTOM: null,
 };
 

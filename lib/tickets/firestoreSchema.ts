@@ -9,7 +9,7 @@ export interface Timestamp {
   readonly nanoseconds: number;
 }
 
-export type VenueTemplate = 'SAC_CONCERT' | 'IBK_CHAMBER' | 'BUCHEON_CONCERT' | 'CUSTOM';
+export type VenueTemplate = 'SAC_CONCERT' | 'IBK_CHAMBER' | 'BUCHEON_CONCERT' | 'LOTTE_CONCERT' | 'CUSTOM';
 
 export type BlockSpec = {
   code: string;        // e.g. "201", "004"
