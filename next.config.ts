@@ -14,7 +14,7 @@ const csp = [
     .filter(Boolean)
     .join(" "),
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://lh3.googleusercontent.com https://firebasestorage.googleapis.com",
+  "img-src 'self' data: blob: https://lh3.googleusercontent.com https://firebasestorage.googleapis.com https://i.ytimg.com",
   "media-src 'self' blob: https://firebasestorage.googleapis.com",
   "font-src 'self' data:",
   [
