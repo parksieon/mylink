@@ -2,10 +2,13 @@ import {
   doc,
   getDoc,
   setDoc,
+  updateDoc,
+  increment,
   runTransaction,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { isValidYoutubeUrl } from "@/lib/youtube";
+import { uploadAsset, deleteAssetFile } from "@/lib/assets";
 
 export interface UserProfile {
   uid: string;
@@ -14,7 +17,15 @@ export interface UserProfile {
   username?: string;
   bio?: string;
   bgmYoutubeUrl?: string;
+  bgImageURL?: string | null;
+  bgImagePath?: string | null;
+  bgImageSize?: number | null;
 }
+
+// 프로필 배경 이미지는 노드가 아닌 user doc에 매달리므로
+// 가짜 nodeId 를 reserved key 로 잡아 storage.rules 의
+// `users/{uid}/files/{nodeId}/{file=**}` 패턴 안에 둠.
+const PROFILE_BG_RESERVED_ID = "_profile";
 
 export const BIO_MAX_LENGTH = 300;
 
@@ -127,6 +138,76 @@ export async function setBgmYoutubeUrl(
   } catch (err) {
     console.error("setBgmYoutubeUrl failed:", err);
     return { ok: false, reason: "BGM URL 저장에 실패했어요." };
+  }
+}
+
+export type SetProfileBgResult = { ok: true } | { ok: false; reason: string };
+
+export async function setProfileBg(
+  uid: string,
+  file: File
+): Promise<SetProfileBgResult> {
+  if (!file.type.startsWith("image/")) {
+    return { ok: false, reason: "이미지 파일만 업로드할 수 있어요." };
+  }
+
+  const profile = await getProfile(uid);
+  const oldSize = profile?.bgImageSize ?? 0;
+  if (profile?.bgImagePath) {
+    await deleteAssetFile(profile.bgImagePath);
+  }
+
+  const storagePath = `users/${uid}/files/${PROFILE_BG_RESERVED_ID}/bg-${file.name}`;
+  const upload = await uploadAsset(uid, file, storagePath);
+  if (!upload.ok) return { ok: false, reason: upload.reason };
+
+  try {
+    await setDoc(
+      doc(db, "users", uid),
+      {
+        bgImageURL: upload.value.downloadURL,
+        bgImagePath: storagePath,
+        bgImageSize: file.size,
+      },
+      { merge: true }
+    );
+    const delta = file.size - oldSize;
+    if (delta !== 0) {
+      await updateDoc(doc(db, "users", uid), {
+        usedBytes: increment(delta),
+      });
+    }
+    return { ok: true };
+  } catch (err) {
+    console.error("setProfileBg failed:", err);
+    return { ok: false, reason: "배경 이미지 저장에 실패했어요." };
+  }
+}
+
+export async function clearProfileBg(uid: string): Promise<SetProfileBgResult> {
+  const profile = await getProfile(uid);
+  if (!profile?.bgImagePath) return { ok: true };
+  const oldSize = profile.bgImageSize ?? 0;
+  await deleteAssetFile(profile.bgImagePath);
+  try {
+    await setDoc(
+      doc(db, "users", uid),
+      {
+        bgImageURL: null,
+        bgImagePath: null,
+        bgImageSize: null,
+      },
+      { merge: true }
+    );
+    if (oldSize > 0) {
+      await updateDoc(doc(db, "users", uid), {
+        usedBytes: increment(-oldSize),
+      });
+    }
+    return { ok: true };
+  } catch (err) {
+    console.error("clearProfileBg failed:", err);
+    return { ok: false, reason: "배경 이미지 제거에 실패했어요." };
   }
 }
 

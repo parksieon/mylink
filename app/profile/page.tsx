@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
+import { Image as ImageIcon, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/auth-context";
@@ -10,8 +12,11 @@ import {
   setUsername,
   setBio,
   setBgmYoutubeUrl,
+  setProfileBg,
+  clearProfileBg,
   BIO_MAX_LENGTH,
 } from "@/lib/user";
+import { isFirebaseStorageUrl } from "@/lib/url-safe";
 
 interface Status {
   kind: "ok" | "error";
@@ -36,6 +41,11 @@ export default function ProfilePage() {
   const [bgmStatus, setBgmStatus] = useState<Status | null>(null);
   const [bgmSaving, setBgmSaving] = useState(false);
 
+  const [bgImageURL, setBgImageURL] = useState<string | null>(null);
+  const [bgStatus, setBgStatus] = useState<Status | null>(null);
+  const [bgSaving, setBgSaving] = useState(false);
+  const bgFileInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
@@ -51,6 +61,7 @@ export default function ProfilePage() {
       const g = profile?.bgmYoutubeUrl ?? "";
       setSavedBgm(g);
       setBgmInput(g);
+      setBgImageURL(profile?.bgImageURL ?? null);
     })();
     return () => {
       cancelled = true;
@@ -85,6 +96,40 @@ export default function ProfilePage() {
     }
     setSavedBio(bioInput.trim());
     setBioStatus({ kind: "ok", message: "저장됐어요!" });
+  };
+
+  const handleBgUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setBgSaving(true);
+    setBgStatus(null);
+    const result = await setProfileBg(user.uid, file);
+    if (bgFileInputRef.current) bgFileInputRef.current.value = "";
+    if (!result.ok) {
+      setBgSaving(false);
+      setBgStatus({ kind: "error", message: result.reason });
+      return;
+    }
+    const refreshed = await getProfile(user.uid);
+    setBgImageURL(refreshed?.bgImageURL ?? null);
+    setBgSaving(false);
+    setBgStatus({ kind: "ok", message: "저장됐어요!" });
+  };
+
+  const handleBgClear = async () => {
+    if (!user) return;
+    setBgSaving(true);
+    setBgStatus(null);
+    const result = await clearProfileBg(user.uid);
+    if (!result.ok) {
+      setBgSaving(false);
+      setBgStatus({ kind: "error", message: result.reason });
+      return;
+    }
+    setBgImageURL(null);
+    setBgSaving(false);
+    setBgStatus({ kind: "ok", message: "배경을 제거했어요." });
   };
 
   const handleBgmSave = async () => {
@@ -245,6 +290,74 @@ export default function ProfilePage() {
             }
           >
             {bioStatus.message}
+          </p>
+        )}
+      </section>
+
+      {/* 배경 이미지 */}
+      <section className="mb-12 rounded-2xl bg-card p-6 ring-1 ring-border/60 sm:p-8">
+        <h2 className="text-lg font-semibold tracking-tight text-foreground">
+          배경 이미지
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          공개 페이지(<span className="font-mono">/내_username</span>) 메인 화면의 배경으로 사용돼요. 하위 폴더에는 적용되지 않아요.
+        </p>
+        <div className="mt-5 flex items-center gap-4">
+          {bgImageURL && isFirebaseStorageUrl(bgImageURL) ? (
+            <div className="relative h-24 w-40 overflow-hidden rounded-lg ring-1 ring-border">
+              <Image
+                src={bgImageURL}
+                alt="배경 미리보기"
+                fill
+                unoptimized
+                className="object-cover"
+              />
+            </div>
+          ) : (
+            <div className="flex h-24 w-40 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+              <ImageIcon size={22} />
+            </div>
+          )}
+          <div className="flex flex-col gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => bgFileInputRef.current?.click()}
+              disabled={bgSaving}
+              className="cursor-pointer"
+            >
+              {bgSaving ? "올리는 중..." : bgImageURL ? "교체" : "업로드"}
+            </Button>
+            {bgImageURL && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleBgClear}
+                disabled={bgSaving}
+                className="cursor-pointer"
+              >
+                <X size={14} /> 제거
+              </Button>
+            )}
+          </div>
+          <input
+            ref={bgFileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleBgUpload}
+          />
+        </div>
+        {bgStatus && (
+          <p
+            className={
+              "mt-3 text-[13px] " +
+              (bgStatus.kind === "ok"
+                ? "text-emerald-600"
+                : "text-destructive")
+            }
+          >
+            {bgStatus.message}
           </p>
         )}
       </section>

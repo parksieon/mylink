@@ -10,6 +10,7 @@ import {
 import { getNodeTreeByUsername, type Node } from "@/lib/nodes";
 import { PublicFolderView } from "@/components/PublicFolderView";
 import { MiniBgmPlayer } from "@/components/MiniBgmPlayer";
+import { isFirebaseStorageUrl } from "@/lib/url-safe";
 
 interface PageProps {
   params: Promise<{ username: string }>;
@@ -62,8 +63,25 @@ export default function UsernamePage({ params }: PageProps) {
     return <NotFoundCard username={username} />;
   }
 
+  const bgImage =
+    profile.bgImageURL && isFirebaseStorageUrl(profile.bgImageURL)
+      ? profile.bgImageURL
+      : null;
+
   return (
-    <div>
+    <div className="relative min-h-[calc(100vh-3rem)]">
+      {bgImage && (
+        <div className="pointer-events-none absolute inset-0 -z-10">
+          <Image
+            src={bgImage}
+            alt=""
+            fill
+            unoptimized
+            className="object-cover opacity-50"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/40 to-background" />
+        </div>
+      )}
       <ProfileHeader profile={profile} username={username} />
       <PublicFolderView
         username={username}

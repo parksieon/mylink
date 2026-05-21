@@ -114,12 +114,18 @@ service cloud.firestore {
       // 프로필 본문 — 본인만. quotaBytes는 콘솔에서만 수정 가능.
       // 알려진 한계: 본인이 usedBytes를 임의로 0으로 리셋해서 quota 우회 가능 (학기 프로젝트 용인).
       allow create: if isOwner(uid)
-        && (!('bgmYoutubeUrl' in request.resource.data) || isYoutubeOrEmpty(request.resource.data.bgmYoutubeUrl));
+        && (!('bgmYoutubeUrl' in request.resource.data) || isYoutubeOrEmpty(request.resource.data.bgmYoutubeUrl))
+        && (!('bgImageURL' in request.resource.data)
+            || request.resource.data.bgImageURL == null
+            || isFirebaseStorageUrl(request.resource.data.bgImageURL));
       allow update: if isOwner(uid)
         && !request.resource.data.diff(resource.data).affectedKeys()
              .hasAny(['quotaBytes'])
         && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['bgmYoutubeUrl'])
-            || isYoutubeOrEmpty(request.resource.data.bgmYoutubeUrl));
+            || isYoutubeOrEmpty(request.resource.data.bgmYoutubeUrl))
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['bgImageURL'])
+            || request.resource.data.bgImageURL == null
+            || isFirebaseStorageUrl(request.resource.data.bgImageURL));
 
       // FCM 디바이스 토큰 — 본인만 read/write. 공개 read 인 users/{uid} 문서에
       // fcmTokens 배열을 보관하면 누구나 토큰을 enumerate 할 수 있어 서브컬렉션으로 분리.
