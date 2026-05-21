@@ -15,6 +15,7 @@ const csp = [
     .join(" "),
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://lh3.googleusercontent.com https://firebasestorage.googleapis.com",
+  "media-src 'self' blob: https://firebasestorage.googleapis.com",
   "font-src 'self' data:",
   [
     "connect-src 'self'",
