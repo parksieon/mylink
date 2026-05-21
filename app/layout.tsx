@@ -11,24 +11,21 @@ const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 export const metadata: Metadata = {
   metadataBase: new URL("https://timefilm.vercel.app"),
   title: {
-    default: "박시언의 TimeFilm",
-    template: "%s · 박시언의 TimeFilm",
+    default: "TimeFilm",
+    template: "%s · TimeFilm",
   },
-  description:
-    "코드로 세상을 더 행복하게 만들고 싶은 학생, 박시언의 페이지.",
+  description: "나의 링크와 글을 하나의 페이지로",
   openGraph: {
     type: "website",
     locale: "ko_KR",
-    siteName: "박시언의 TimeFilm",
-    title: "박시언의 TimeFilm",
-    description:
-      "코드로 세상을 더 행복하게 만들고 싶은 학생, 박시언의 페이지.",
+    siteName: "TimeFilm",
+    title: "TimeFilm",
+    description: "나의 링크와 글을 하나의 페이지로",
   },
   twitter: {
     card: "summary_large_image",
-    title: "박시언의 TimeFilm",
-    description:
-      "코드로 세상을 더 행복하게 만들고 싶은 학생, 박시언의 페이지.",
+    title: "TimeFilm",
+    description: "나의 링크와 글을 하나의 페이지로",
   },
 };
 

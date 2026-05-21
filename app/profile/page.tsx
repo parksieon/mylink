@@ -201,7 +201,7 @@ export default function ProfilePage() {
                 setUsernameInput(e.target.value);
                 if (usernameStatus) setUsernameStatus(null);
               }}
-              placeholder="parksieon"
+              placeholder="my-username"
               className="border-0 shadow-none focus-visible:ring-0"
               autoCapitalize="none"
               autoCorrect="off"
@@ -261,7 +261,7 @@ export default function ProfilePage() {
               setBioInput(e.target.value);
               if (bioStatus) setBioStatus(null);
             }}
-            placeholder="예: 코드로 세상을 더 행복하게 만들고 싶은 학생입니다."
+            placeholder="자신을 소개하는 짧은 글"
             rows={3}
             maxLength={BIO_MAX_LENGTH + 50}
             className="flex w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"

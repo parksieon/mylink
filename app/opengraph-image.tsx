@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { ImageResponse } from "next/og";
 
-export const alt = "박시언 — TimeFilm";
+export const alt = "TimeFilm";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -55,18 +55,7 @@ export default async function OpengraphImage() {
             textAlign: "center",
           }}
         >
-          박시언의 TimeFilm
-        </div>
-        <div
-          style={{
-            marginTop: 24,
-            fontSize: 30,
-            color: "#52525b",
-            letterSpacing: "-0.02em",
-            textAlign: "center",
-          }}
-        >
-          광운대 정보융합학부 22학번
+          TimeFilm
         </div>
         <div
           style={{
