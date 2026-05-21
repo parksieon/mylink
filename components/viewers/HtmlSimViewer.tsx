@@ -16,8 +16,10 @@ export function HtmlSimViewer({ url, className, title }: HtmlSimViewerProps) {
   return (
     <iframe
       src={url}
-      // allow-scripts 만 — allow-same-origin 없음 ⇒ null origin 으로 격리됨
-      sandbox="allow-scripts"
+      // allow-scripts + allow-popups — allow-same-origin 없음 ⇒ null origin 으로 격리됨.
+      // allow-popups 는 iframe 안의 <a target="_blank"> 가 새 탭으로 열리게 해줌
+      // (storage·cookie 공유 위험 없음).
+      sandbox="allow-scripts allow-popups"
       referrerPolicy="no-referrer"
       title={title ?? "HTML 시뮬레이션"}
       className={
