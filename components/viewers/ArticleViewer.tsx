@@ -8,6 +8,7 @@ import Youtube from "@tiptap/extension-youtube";
 import type { JSONContent } from "@tiptap/react";
 import { sanitizeArticleContent } from "@/lib/article-sanitize";
 import { isSafeHttpUrl } from "@/lib/url-safe";
+import { Audio } from "@/lib/tiptap/audio-extension";
 
 interface ArticleViewerProps {
   content: unknown;
@@ -28,6 +29,7 @@ export function ArticleViewer({ content }: ArticleViewerProps) {
         HTMLAttributes: { rel: "noopener noreferrer nofollow", target: "_blank" },
       }),
       Youtube.configure({ controls: true, nocookie: true, width: 640, height: 360 }),
+      Audio,
     ],
     content: safe ?? "",
     editable: false,

@@ -18,6 +18,7 @@ import {
   ImagePlus,
   Link as LinkIcon,
   Youtube as YoutubeIcon,
+  Music,
   Undo2,
   Redo2,
 } from "lucide-react";
@@ -32,6 +33,7 @@ import type { Node } from "@/lib/nodes";
 import { uploadAsset } from "@/lib/assets";
 import { StyleControls } from "../StyleControls";
 import { isSafeHttpUrl } from "@/lib/url-safe";
+import { Audio } from "@/lib/tiptap/audio-extension";
 import { cn } from "@/lib/utils";
 
 const SAVE_DEBOUNCE_MS = 400;
@@ -59,6 +61,7 @@ export function ArticleEditor({ node }: ArticleEditorProps) {
         HTMLAttributes: { rel: "noopener noreferrer nofollow", target: "_blank" },
       }),
       Youtube.configure({ controls: true, nocookie: true, width: 640, height: 360 }),
+      Audio,
     ],
     content: (node.content as JSONContent) ?? "",
     immediatelyRender: false,
@@ -131,7 +134,9 @@ interface ToolbarProps {
 
 function Toolbar({ editor, uid, nodeId }: ToolbarProps) {
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingAudio, setUploadingAudio] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const audioInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -149,6 +154,29 @@ function Toolbar({ editor, uid, nodeId }: ToolbarProps) {
     } finally {
       setUploadingImage(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !uid) return;
+    setUploadingAudio(true);
+    try {
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const path = `users/${uid}/files/${nodeId}/audio-${Date.now()}-${safeName}`;
+      const result = await uploadAsset(uid, file, path);
+      if (result.ok) {
+        editor
+          .chain()
+          .focus()
+          .setAudio({ src: result.value.downloadURL, title: file.name })
+          .run();
+      } else {
+        alert(result.reason);
+      }
+    } finally {
+      setUploadingAudio(false);
+      if (audioInputRef.current) audioInputRef.current.value = "";
     }
   };
 
@@ -281,6 +309,17 @@ function Toolbar({ editor, uid, nodeId }: ToolbarProps) {
       <ToolbarButton onClick={handleYoutube} title="YouTube 임베드">
         <YoutubeIcon size={14} />
       </ToolbarButton>
+      <ToolbarButton
+        onClick={() => audioInputRef.current?.click()}
+        title="오디오(mp3) 업로드"
+        disabled={uploadingAudio}
+      >
+        {uploadingAudio ? (
+          <Loader2 size={14} className="animate-spin" />
+        ) : (
+          <Music size={14} />
+        )}
+      </ToolbarButton>
       <span className="mx-1 h-4 w-px bg-border/60" />
       <ToolbarButton
         onClick={() => editor.chain().focus().undo().run()}
@@ -302,6 +341,13 @@ function Toolbar({ editor, uid, nodeId }: ToolbarProps) {
         accept="image/*"
         className="hidden"
         onChange={handleImageUpload}
+      />
+      <input
+        ref={audioInputRef}
+        type="file"
+        accept="audio/*,.mp3"
+        className="hidden"
+        onChange={handleAudioUpload}
       />
     </div>
   );

@@ -35,6 +35,11 @@ function sanitizeNode(node: Record<string, unknown>): Record<string, unknown> | 
     if (!isFirebaseStorageUrl(attrs.src)) return null;
   }
 
+  if (type === "audio") {
+    const attrs = (node.attrs ?? {}) as Record<string, unknown>;
+    if (!isFirebaseStorageUrl(attrs.src)) return null;
+  }
+
   if (type === "youtube") {
     const attrs = (node.attrs ?? {}) as Record<string, unknown>;
     const src = attrs.src;
