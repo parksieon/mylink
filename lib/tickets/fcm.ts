@@ -1,8 +1,9 @@
 // /lib/tickets/fcm.ts
 // Server-side push delivery using Firebase Admin SDK.
-// Cleans up tokens that the FCM API reports as invalid.
-import { FieldValue } from 'firebase-admin/firestore';
+// 토큰 저장소: users/{uid}/devices/{tokenId} 서브컬렉션.
+// Cleans up tokens that the FCM API reports as invalid by deleting that device doc.
 import { adminDb, adminMessaging } from '../firebase/admin';
+import type { DocumentReference } from 'firebase-admin/firestore';
 import type { FcmToken } from './firestoreSchema';
 
 type PushPayload = {
@@ -19,12 +20,14 @@ const INVALID_TOKEN_ERRORS = new Set([
 
 export async function pushToUser(uid: string, payload: PushPayload): Promise<{ sent: number; pruned: number }> {
   const db = adminDb();
-  const userRef = db.collection('users').doc(uid);
-  const snap = await userRef.get();
-  const tokens: FcmToken[] = (snap.get('fcmTokens') as FcmToken[] | undefined) ?? [];
-  if (tokens.length === 0) return { sent: 0, pruned: 0 };
+  const devicesSnap = await db.collection('users').doc(uid).collection('devices').get();
+  if (devicesSnap.empty) return { sent: 0, pruned: 0 };
 
-  const tokenStrings = tokens.map(t => t.token);
+  const devices: { ref: DocumentReference; token: string }[] = devicesSnap.docs.map(d => ({
+    ref: d.ref,
+    token: (d.data() as FcmToken).token,
+  }));
+  const tokenStrings = devices.map(d => d.token);
 
   const res = await adminMessaging().sendEachForMulticast({
     tokens: tokenStrings,
@@ -36,16 +39,18 @@ export async function pushToUser(uid: string, payload: PushPayload): Promise<{ s
     data: { url: payload.url },
   });
 
-  const invalidTokens: FcmToken[] = [];
+  const invalidRefs: DocumentReference[] = [];
   res.responses.forEach((r, i) => {
     if (!r.success && r.error && INVALID_TOKEN_ERRORS.has(r.error.code)) {
-      invalidTokens.push(tokens[i]);
+      invalidRefs.push(devices[i].ref);
     }
   });
 
-  if (invalidTokens.length > 0) {
-    await userRef.update({ fcmTokens: FieldValue.arrayRemove(...invalidTokens) });
+  if (invalidRefs.length > 0) {
+    const batch = db.batch();
+    for (const ref of invalidRefs) batch.delete(ref);
+    await batch.commit();
   }
 
-  return { sent: res.successCount, pruned: invalidTokens.length };
+  return { sent: res.successCount, pruned: invalidRefs.length };
 }

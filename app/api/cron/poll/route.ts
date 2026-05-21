@@ -21,9 +21,13 @@ function todayYYYYMMDD_KST(): string {
 }
 
 export async function GET(req: Request) {
-  // Vercel cron sends `Authorization: Bearer ${CRON_SECRET}` automatically when CRON_SECRET is set.
-  const expected = `Bearer ${process.env.CRON_SECRET ?? ''}`;
-  if (process.env.CRON_SECRET && req.headers.get('authorization') !== expected) {
+  // fail-closed: 시크릿이 환경에 없으면 인증 우회되지 않도록 즉시 500.
+  // Vercel cron / Cloudflare worker 둘 다 `Authorization: Bearer ${CRON_SECRET}` 로 호출.
+  const secret = process.env.CRON_SECRET;
+  if (!secret) {
+    return new NextResponse('Server misconfigured: CRON_SECRET missing', { status: 500 });
+  }
+  if (req.headers.get('authorization') !== `Bearer ${secret}`) {
     return new NextResponse('Unauthorized', { status: 401 });
   }
 
