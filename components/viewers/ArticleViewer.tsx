@@ -19,7 +19,7 @@ export function ArticleViewer({ content }: ArticleViewerProps) {
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({ link: false }),
       Image,
       Link.configure({
         openOnClick: true,

@@ -51,7 +51,7 @@ export function ArticleEditor({ node }: ArticleEditorProps) {
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({ link: false }),
       Image,
       Link.configure({
         openOnClick: false,
