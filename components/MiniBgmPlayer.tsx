@@ -80,7 +80,9 @@ export function MiniBgmPlayer({ url }: Props) {
   useEffect(() => {
     if (!videoId) return;
     const onMessage = (e: MessageEvent) => {
-      if (typeof e.origin !== "string" || !e.origin.includes("youtube.com")) return;
+      // origin 은 정확 매칭 — `.includes("youtube.com")` 패턴은 attacker-youtube.com 같은
+      // 서브도메인 사칭에 취약. 현재 iframe src 는 www.youtube.com 뿐이지만 nocookie 도 같이 허용.
+      if (e.origin !== "https://www.youtube.com" && e.origin !== "https://www.youtube-nocookie.com") return;
       try {
         const data = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
         if (data?.event === "onStateChange") {
