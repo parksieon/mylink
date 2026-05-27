@@ -133,7 +133,7 @@ service cloud.firestore {
         allow read, write: if isOwner(uid);
       }
 
-      // 통합 노드 컬렉션 (folder | article | link | html | 3d | pdf)
+      // 통합 노드 컬렉션 (folder | article | link | html | 3d | pdf | md)
       match /nodes/{nodeId} {
         allow read: if isOwner(uid)
           || resource.data.effectiveVisibility == "public";

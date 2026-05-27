@@ -46,7 +46,7 @@ interface NodesContextType {
   createFolder: (parentId: string | null, name: string) => Promise<Result<{ id: string }>>;
   createArticle: (parentId: string | null, name: string) => Promise<Result<{ id: string }>>;
   createLink: (parentId: string | null, name: string, url: string) => Promise<Result<{ id: string }>>;
-  createAsset: (parentId: string | null, name: string, kind: "html" | "3d" | "pdf", file: File) => Promise<Result<{ id: string }>>;
+  createAsset: (parentId: string | null, name: string, kind: "html" | "3d" | "pdf" | "md", file: File) => Promise<Result<{ id: string }>>;
 
   rename: (id: string, name: string) => Promise<Result>;
   reorder: (id: string, dir: "up" | "down") => Promise<Result>;

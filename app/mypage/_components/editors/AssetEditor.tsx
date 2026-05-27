@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { Box, Code, FileText, AlertTriangle } from "lucide-react";
 import { HtmlSimViewer } from "@/components/viewers/HtmlSimViewer";
 import { PdfViewer } from "@/components/viewers/PdfViewer";
+import { MarkdownViewer } from "@/components/viewers/MarkdownViewer";
 import type { Node } from "@/lib/nodes";
 import { formatBytes } from "@/lib/quota";
 import { StyleControls } from "../StyleControls";
@@ -32,6 +33,7 @@ const KIND_INFO: Record<
   html: { label: "HTML 시뮬레이션", Icon: Code, hint: "sandbox iframe으로 표시돼요" },
   "3d": { label: "3D 모델", Icon: Box, hint: ".glb / .gltf, 마우스로 회전" },
   pdf: { label: "PDF", Icon: FileText, hint: "브라우저 기본 뷰어" },
+  md: { label: "Markdown", Icon: FileText, hint: "GFM 서식 + 코드블록 색상" },
 };
 
 export function AssetEditor({ node }: AssetEditorProps) {
@@ -90,6 +92,13 @@ function renderPreview(node: Node) {
       return <ThreeDViewer url={node.fileURL} />;
     case "pdf":
       return <PdfViewer url={node.fileURL} title={node.name} />;
+    case "md":
+      return (
+        <MarkdownViewer
+          url={node.fileURL}
+          className="rounded-xl bg-card p-6 ring-1 ring-border/60"
+        />
+      );
     default:
       return null;
   }

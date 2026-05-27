@@ -36,6 +36,7 @@ export function NodeEditor() {
     case "html":
     case "3d":
     case "pdf":
+    case "md":
       return <AssetEditor key={active.id} node={active} />;
     default:
       return null;

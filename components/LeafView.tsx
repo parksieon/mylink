@@ -6,6 +6,7 @@ import { ChevronLeft, AlertTriangle } from "lucide-react";
 import type { Node } from "@/lib/nodes";
 import { HtmlSimViewer } from "@/components/viewers/HtmlSimViewer";
 import { PdfViewer } from "@/components/viewers/PdfViewer";
+import { MarkdownViewer } from "@/components/viewers/MarkdownViewer";
 
 const ThreeDViewer = dynamic(
   () =>
@@ -64,6 +65,28 @@ function renderContent(leaf: Node) {
           {leaf.name}
         </h1>
         <ArticleViewer content={leaf.content} />
+      </div>
+    );
+  }
+
+  // Markdown 도 article 과 같은 가독성 레이아웃
+  if (leaf.kind === "md") {
+    return (
+      <div className="mx-auto max-w-3xl px-8 pb-16 pt-20">
+        <h1 className="mb-6 text-3xl font-bold tracking-tight text-foreground">
+          {leaf.name}
+        </h1>
+        {leaf.fileURL ? (
+          <MarkdownViewer
+            url={leaf.fileURL}
+            className="rounded-2xl bg-card p-6 ring-1 ring-border/60"
+          />
+        ) : (
+          <div className="flex items-center gap-2 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900 ring-1 ring-amber-200/60 dark:bg-amber-950/30 dark:text-amber-200 dark:ring-amber-900/60">
+            <AlertTriangle size={14} className="shrink-0" />
+            <span>파일이 첨부되지 않았어요.</span>
+          </div>
+        )}
       </div>
     );
   }

@@ -22,6 +22,7 @@ const KIND_LABEL: Record<string, string> = {
   html: "HTML",
   "3d": "3D",
   pdf: "PDF",
+  md: "MD",
 };
 
 function defaultIcon(kind: Node["kind"]): string {
@@ -37,6 +38,8 @@ function defaultIcon(kind: Node["kind"]): string {
     case "3d":
       return "Box";
     case "pdf":
+      return "FileText";
+    case "md":
       return "FileText";
     default:
       return "Link";

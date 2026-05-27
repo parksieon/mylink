@@ -23,7 +23,7 @@ import { useNodes } from "@/context/nodes-context";
 import type { NodeKind } from "@/lib/nodes";
 import { cn } from "@/lib/utils";
 
-type CreatableKind = "folder" | "article" | "link" | "html" | "3d" | "pdf";
+type CreatableKind = "folder" | "article" | "link" | "html" | "3d" | "pdf" | "md";
 
 const KINDS: { kind: CreatableKind; label: string; desc: string; Icon: typeof Folder; accept?: string }[] = [
   { kind: "folder", label: "폴더", desc: "방·하위 항목 그룹", Icon: Folder },
@@ -32,6 +32,7 @@ const KINDS: { kind: CreatableKind; label: string; desc: string; Icon: typeof Fo
   { kind: "html", label: "HTML 시뮬", desc: ".html 업로드 (sandbox)", Icon: Code, accept: ".html,.htm" },
   { kind: "3d", label: "3D 모델", desc: ".glb / .gltf 업로드", Icon: Box, accept: ".glb,.gltf,model/gltf-binary" },
   { kind: "pdf", label: "PDF", desc: ".pdf 업로드", Icon: FileText, accept: ".pdf,application/pdf" },
+  { kind: "md", label: "Markdown", desc: ".md 업로드 (서식 렌더)", Icon: FileText, accept: ".md,.markdown,text/markdown" },
 ];
 
 interface CreateNodeDialogProps {
@@ -70,7 +71,7 @@ export function CreateNodeDialog({
 
   const config = KINDS.find((k) => k.kind === kind)!;
   const needsUrl = kind === "link";
-  const needsFile = kind === "html" || kind === "3d" || kind === "pdf";
+  const needsFile = kind === "html" || kind === "3d" || kind === "pdf" || kind === "md";
 
   const submit = async () => {
     setError("");

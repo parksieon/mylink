@@ -50,6 +50,8 @@ function kindIcon(kind: NodeKind) {
       return Box;
     case "pdf":
       return FileText;
+    case "md":
+      return FileText;
   }
 }
 
